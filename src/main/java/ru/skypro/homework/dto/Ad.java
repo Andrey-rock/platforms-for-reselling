@@ -1,0 +1,19 @@
+package ru.skypro.homework.dto;
+
+import lombok.Data;
+
+/**
+ * DTO для объявлений.
+ *
+ * @author Andrei Bronskii, 2025
+ * @version 0.0.1
+ */
+@Data
+public class Ad {
+
+    private int id;
+    private String image;
+    private int pk;
+    private int price;
+    private String title;
+}
