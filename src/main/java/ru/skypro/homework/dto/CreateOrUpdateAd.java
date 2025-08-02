@@ -1,5 +1,6 @@
 package ru.skypro.homework.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -11,7 +12,10 @@ import lombok.Data;
 @Data
 public class CreateOrUpdateAd {
 
+    @Schema(description = "заголовок объявления", minLength = 4, maxLength = 32)
     private String title;
+    @Schema(description = "цена объявления", minLength = 0, maxLength = 10000000)
     private String description;
+    @Schema(description = "описание объявления", minLength = 8, maxLength = 64)
     private int price;
 }
