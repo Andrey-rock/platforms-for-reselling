@@ -13,4 +13,9 @@ public class Ads {
 
     private int count;
     private Ad[] results;
+
+    public Ads(int count, Ad[] results) {
+        this.count = count;
+        this.results = results;
+    }
 }

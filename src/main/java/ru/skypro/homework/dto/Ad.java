@@ -16,4 +16,12 @@ public class Ad {
     private int pk;
     private int price;
     private String title;
+
+    public Ad(int id, String image, int pk, int price, String title) {
+        this.id = id;
+        this.image = image;
+        this.pk = pk;
+        this.price = price;
+        this.title = title;
+    }
 }
