@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
+import ru.skypro.homework.dto.CreateOrUpdateComment;
 
 /**
  * Контроллер для работы с комментариями
@@ -47,8 +47,8 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @PostMapping("/{id}/comments")
-    public ResponseEntity<Comment> addComment(@PathVariable("id") Integer id,
-                                              @RequestBody Comment newComment) {
+    public ResponseEntity<CreateOrUpdateComment> addComment(@PathVariable("id") Integer id,
+                                              @RequestBody CreateOrUpdateComment newComment) {
         return ResponseEntity.ok(newComment);
     }
 
@@ -79,9 +79,9 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @PatchMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<Comment> updateComment(@PathVariable("adId") Integer adId,
-                                                 @PathVariable("commentId") Integer commentId,
-                                                 @RequestBody Comment updatedComment) {
+    public ResponseEntity<CreateOrUpdateComment> updateComment(@PathVariable("adId") Integer adId,
+                                                               @PathVariable("commentId") Integer commentId,
+                                                               @RequestBody CreateOrUpdateComment updatedComment) {
         return ResponseEntity.ok(updatedComment);
     }
 }

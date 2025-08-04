@@ -13,16 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.Ad;
-import ru.skypro.homework.dto.Ads;
-import ru.skypro.homework.dto.Constants;
+import ru.skypro.homework.dto.*;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.skypro.homework.dto.Constants.AD1;
-import static ru.skypro.homework.dto.Constants.CONSTANT_ADS;
+import static ru.skypro.homework.dto.Constants.*;
 
 /**
  * Контроллер для работы с объявлениями
@@ -64,7 +61,7 @@ public class AdController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @PostMapping
-    public ResponseEntity<Ad> addNewAds(@RequestBody Ad newAd) {
+    public ResponseEntity<CreateOrUpdateAd> addNewAds(@RequestBody CreateOrUpdateAd newAd) {
 //        return adService.addNewAd(ad).getId;
     return ResponseEntity.ok(newAd);
     }
@@ -74,13 +71,14 @@ public class AdController {
      */
     @Operation(summary = "Получение информации об объявлении")
     @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content()),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @GetMapping("{id}")
-    public ResponseEntity<Ad> getInfoAboutAd(@PathVariable Integer id) {
+    public ResponseEntity<ExtendedAd> getInfoAboutAd(@PathVariable Integer id) {
 //        return adService.getInfoAboutAd(id);
-        return ResponseEntity.ok(AD1);
+        return ResponseEntity.ok(EXTENDED_AD);
     }
 
     /**
@@ -95,7 +93,7 @@ public class AdController {
     })
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteAd(@PathVariable int id) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -109,7 +107,7 @@ public class AdController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @PatchMapping("{id}")
-    public ResponseEntity<Ad> editInfoAboutAd(@PathVariable int id, @RequestBody Ad ad) {
+    public ResponseEntity<CreateOrUpdateAd> editInfoAboutAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
 //        return adService.editAd(ad);
     return ResponseEntity.ok(ad);
     }
