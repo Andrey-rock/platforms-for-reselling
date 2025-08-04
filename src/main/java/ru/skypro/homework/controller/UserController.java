@@ -1,8 +1,12 @@
 package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,18 +26,20 @@ import ru.skypro.homework.dto.User;
 @Tag(name = "Пользователи")
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     /**
      * Обновление пароля
      */
     @Operation(summary = "Обновление пароля")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content()),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content()),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content())
+    })
     @PostMapping("/set_password")
     public ResponseEntity<?> setPassword(@RequestBody NewPassword newPasswordPayload) {
-        boolean isCurrentPasswordValid = checkCurrentPassword(newPasswordPayload.getCurrentPassword());
-        if (!isCurrentPasswordValid) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Некорректный текущий пароль");
-        }
         boolean updateSuccess = updateUserPassword(newPasswordPayload.getNewPassword());
         if (updateSuccess) {
             return ResponseEntity.ok().build();
@@ -41,11 +47,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Не удалось обновить пароль");
         }
     }
-
-    private boolean checkCurrentPassword(String currentPassword) {
-        return true;
-    }
-
     private boolean updateUserPassword(String newPassword) {
         return true;
     }
@@ -54,6 +55,10 @@ public class UserController {
      * Получение информации об авторизованном пользователе
      */
     @Operation(summary = "Получение информации об авторизованном пользователе")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
+    })
     @GetMapping("/me")
     public ResponseEntity<User> getUser(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(user);
@@ -63,6 +68,10 @@ public class UserController {
      * Обновление информации об авторизованном пользователе
      */
     @Operation(summary = "Обновление информации об авторизованном пользователе")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
+    })
     @PatchMapping("/me")
     public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser) {
         return ResponseEntity.ok(updateUser);
@@ -72,7 +81,11 @@ public class UserController {
      * Обновление аватара авторизованного пользователя
      */
     @Operation(summary = "Обновление аватара авторизованного пользователя")
-    @PatchMapping("/me/image")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content()),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
+    })
+    @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateUserImage(@RequestParam("image") MultipartFile imageFile) {
         try {
             return ResponseEntity.ok("Аватар успешно обновлён");
