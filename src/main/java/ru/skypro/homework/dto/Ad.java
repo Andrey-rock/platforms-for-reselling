@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class Ad {
 
     @Schema(description = "id автора объявления")
-    private int id;
+    private int author;
     @Schema(description = "ссылка на картинку объявления")
     private String image;
     @Schema(description = "id объявления")
