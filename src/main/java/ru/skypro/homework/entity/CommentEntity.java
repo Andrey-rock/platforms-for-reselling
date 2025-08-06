@@ -27,8 +27,7 @@ public class CommentEntity {
     private Integer pk;
 
     @Column(name = "время_создания")
-    @Temporal(TemporalType.DATE)
-    private Date createdAt;
+    private Integer createdAt;
 
     @Column(name = "текст_комментария")
     private String text;
