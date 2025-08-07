@@ -24,10 +24,11 @@ public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
+    @Column(name = "Id комментария")
     private Integer pk;
 
     @Column(name = "время_создания")
-    private Integer createdAt;
+    private Long createdAt;
 
     @Column(name = "текст_комментария")
     private String text;

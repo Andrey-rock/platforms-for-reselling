@@ -21,6 +21,7 @@ public class AdEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
+    @Column(name = "Id объявления")
     private Integer pk;
 
     @Column(name = "описание")
