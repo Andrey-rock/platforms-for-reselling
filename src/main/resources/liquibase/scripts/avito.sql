@@ -2,34 +2,34 @@
 -- changeset andrey-rock:1
 CREATE TYPE user_role AS ENUM ('USER', 'ADMIN');
 
-CREATE TABLE Пользователи
+CREATE TABLE пользователи
 (
     id          INT primary key,
-    логин       varchar(32) not null ,
-    пароль      varchar(16) not null ,
-    имя         varchar(32) not null ,
+    логин       varchar(32) not null,
+    пароль      varchar(16) not null,
+    имя         varchar(32) not null,
     фамилия     varchar(32),
     телефон     varchar(16),
     роль        user_role,
     изображение varchar(255)
 );
 
-CREATE TABLE Объявления
+CREATE TABLE объявления
 (
-    id          INT primary key,
-    описание    varchar(64),
-    цена        INT not null ,
-    заголовок   varchar(32) not null ,
-    изображение varchar(255),
-    author      INT not null ,
-    FOREIGN KEY (author) REFERENCES Пользователи (id) ON DELETE CASCADE
+    Id_объявления INT primary key,
+    описание      varchar(64),
+    цена          INT         not null,
+    заголовок     varchar(32) not null,
+    изображение   varchar(255),
+    author_id     INT         not null,
+    FOREIGN KEY (author_id) REFERENCES пользователи (id) ON DELETE CASCADE
 );
 
-CREATE TABLE Комментарии
+CREATE TABLE комментарии
 (
-    id                INT primary key,
-    время_создания    INT,
+    Id_комментария    INT primary key,
+    время_создания    BIGINT,
     текст_комментария varchar(64),
-    author            INT not null,
-    FOREIGN KEY (author) REFERENCES Пользователи (id)
+    author_id         INT not null,
+    FOREIGN KEY (author_id) REFERENCES пользователи (id) ON DELETE CASCADE
 );
