@@ -23,7 +23,7 @@ public class Comment {
     @Schema(description = "имя создателя комментария")
     private String authorFirstName;
     @Schema(description = "дата и время создания комментария в миллисекундах с 00:00:00 01.01.1970")
-    private int createdAt;
+    private long createdAt;
     @Schema(description = "id комментария")
     private int pk;
     @Schema(description = "текст комментария")

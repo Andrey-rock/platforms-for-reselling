@@ -48,9 +48,10 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonIgnoreProperties
-    private Collection<ru.skypro.homework.entity.AdEntity> ads;
+    private Collection<AdEntity> ads;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonIgnoreProperties
-    private Collection<ru.skypro.homework.entity.CommentEntity> comments;
+    private Collection<CommentEntity> comments;
+
 }
