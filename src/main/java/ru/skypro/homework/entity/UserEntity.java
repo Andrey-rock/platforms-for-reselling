@@ -16,7 +16,7 @@ import java.util.Collection;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "Пользователи")
+@Table(name = "пользователи")
 public class UserEntity {
 
     @Id

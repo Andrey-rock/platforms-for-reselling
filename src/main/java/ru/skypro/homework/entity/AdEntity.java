@@ -1,9 +1,7 @@
 package ru.skypro.homework.entity;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
-import ru.skypro.homework.dto.User;
 
 /**
  * Entity для объявлений.
@@ -15,13 +13,13 @@ import ru.skypro.homework.dto.User;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "Объявления")
+@Table(name = "объявления")
 public class AdEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    @Column(name = "Id объявления")
+    @Column(name = "Id_объявления")
     private Integer pk;
 
     @Column(name = "описание")

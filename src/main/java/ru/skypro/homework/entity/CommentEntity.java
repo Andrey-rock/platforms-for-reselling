@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
 
 /**
  * Entity для комментарий.
@@ -18,13 +17,13 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "Комментарии")
+@Table(name = "комментарии")
 public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    @Column(name = "Id комментария")
+    @Column(name = "Id_комментария")
     private Integer pk;
 
     @Column(name = "время_создания")
