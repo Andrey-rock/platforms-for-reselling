@@ -20,24 +20,11 @@ public interface UserMapper {
     @Mapping(source = "username", target = "email")
     User toDto(UserEntity entity);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(source = "email", target = "username")
     UserEntity toEntity(User dto);
 
-    default void updateEntityFromDto(UpdateUser updateUser, @org.jetbrains.annotations.NotNull UserEntity entity) {
-        if (updateUser == null || entity == null) {
-            return;
-        }
-        if (updateUser.getFirstName() != null) {
-            entity.setFirstName(updateUser.getFirstName());
-        }
-        if (updateUser.getLastName() != null) {
-            entity.setLastName(updateUser.getLastName());
-        }
-        if (updateUser.getPhone() != null) {
-            entity.setPhone(updateUser.getPhone());
-        }
-    }
+    UserEntity updateUserFromDto(UpdateUser updateUser);
+
 
     default UserEntity loginToEntity(Login login) {
         if (login == null) {
@@ -49,7 +36,7 @@ public interface UserMapper {
     }
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "image", constant = "")
+    @Mapping(target = "image", ignore = true)
     UserEntity fromRegister(Register register);
 
     default void updatePassword(UserEntity user, NewPassword newPassword) {

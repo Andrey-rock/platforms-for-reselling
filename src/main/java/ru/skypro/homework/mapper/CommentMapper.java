@@ -24,17 +24,9 @@ public interface CommentMapper {
     @Mapping(source = "pk", target = "pk")
     Comment toDto(CommentEntity entity);
 
-    @Mapping(target = "pk", ignore = true)
     @Mapping(source = "authorImage", target = "author.image")
     @Mapping(source = "authorFirstName", target = "author.firstName")
     CommentEntity toEntity(Comment dto);
-
-    default UserEntity map(int authorId) {
-        if (authorId == 0) {
-            return null;
-        }
-        return new UserEntity();
-    }
 
     default int map(UserEntity user) {
         return user != null ? user.getId() : 0;
