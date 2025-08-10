@@ -15,6 +15,7 @@ public class CommentMapperTest {
     @Autowired
     private CommentMapper commentMapper;
 
+    // Тест маппинга CommentEntity в Comment
     @Test
     public void convertCommentEntityToComment() {
 
@@ -35,6 +36,7 @@ public class CommentMapperTest {
         Assertions.assertEquals(commentEntity.getAuthor().getFirstName(), dto.getAuthorFirstName());
     }
 
+    // Тест маппинга Comment в CommentEntity
     @Test
     public void convertCommentToCommentEntity() {
 
@@ -51,6 +53,7 @@ public class CommentMapperTest {
         Assertions.assertEquals(comment.getPk(), commentEntity.getPk());
     }
 
+    // Тест маппинга CreateOrUpdateComment в CommentEntity
     @Test
     public void convertCreateOrUpdateCommentToCommentEntity() {
 

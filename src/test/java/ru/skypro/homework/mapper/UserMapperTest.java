@@ -15,6 +15,7 @@ public class UserMapperTest {
     @Autowired
     private UserMapper userMapper;
 
+    // Тест маппинга UserEntity в User
     @Test
     public void convertUserEntityToUser() {
 
@@ -38,6 +39,7 @@ public class UserMapperTest {
         Assertions.assertEquals(userEntity.getImage(), user.getImage());
     }
 
+    // Тест маппинга User в UserEntity
     @Test
     public void convertUserToUserEntity() {
 
@@ -61,6 +63,7 @@ public class UserMapperTest {
         Assertions.assertEquals(user.getImage(), userEntity.getImage());
     }
 
+    // Тест маппинга UpdateUser в UserEntity
     @Test
     public void convertUpdateUserToUserEntity() {
 

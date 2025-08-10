@@ -16,6 +16,7 @@ public class AdMapperTest {
     @Autowired
     private AdMapper adMapper;
 
+    // Тест маппинга AdEntity в Ad
     @Test
     void convertAdEntityToAd() {
 
@@ -26,13 +27,14 @@ public class AdMapperTest {
         Ad ad = adMapper.toDto(adEntity);
 
         Assertions.assertNotNull(ad);
-        Assertions.assertEquals(adEntity.getAuthor().getId(),ad.getAuthor());
-        Assertions.assertEquals(adEntity.getTitle(),ad.getTitle());
-        Assertions.assertEquals(adEntity.getPrice(),ad.getPrice());
-        Assertions.assertEquals(adEntity.getImage(),ad.getImage());
-        Assertions.assertEquals(adEntity.getPk(),ad.getPk());
+        Assertions.assertEquals(adEntity.getAuthor().getId(), ad.getAuthor());
+        Assertions.assertEquals(adEntity.getTitle(), ad.getTitle());
+        Assertions.assertEquals(adEntity.getPrice(), ad.getPrice());
+        Assertions.assertEquals(adEntity.getImage(), ad.getImage());
+        Assertions.assertEquals(adEntity.getPk(), ad.getPk());
     }
 
+    // Тест маппинга Ad в AdEntity
     @Test
     void convertAdToAdEntity() {
 
@@ -42,11 +44,12 @@ public class AdMapperTest {
 
         Assertions.assertNotNull(adEntity);
         Assertions.assertEquals(ad.getTitle(), adEntity.getTitle());
-        Assertions.assertEquals(ad.getPrice(),adEntity.getPrice());
-        Assertions.assertEquals(ad.getImage(),adEntity.getImage());
-        Assertions.assertEquals(ad.getPk(),adEntity.getPk());
+        Assertions.assertEquals(ad.getPrice(), adEntity.getPrice());
+        Assertions.assertEquals(ad.getImage(), adEntity.getImage());
+        Assertions.assertEquals(ad.getPk(), adEntity.getPk());
     }
 
+    // Тест маппинга AdEntity в ExtendedAd
     @Test
     void convertAdEntityToExtendedAd() {
 
@@ -61,16 +64,17 @@ public class AdMapperTest {
         ExtendedAd extendedAd = adMapper.toExtendedDto(adEntity);
 
         Assertions.assertNotNull(extendedAd);
-        Assertions.assertEquals(adEntity.getTitle(),extendedAd.getTitle());
-        Assertions.assertEquals(adEntity.getPrice(),extendedAd.getPrice());
-        Assertions.assertEquals(adEntity.getImage(),extendedAd.getImage());
-        Assertions.assertEquals(adEntity.getPk(),extendedAd.getPk());
+        Assertions.assertEquals(adEntity.getTitle(), extendedAd.getTitle());
+        Assertions.assertEquals(adEntity.getPrice(), extendedAd.getPrice());
+        Assertions.assertEquals(adEntity.getImage(), extendedAd.getImage());
+        Assertions.assertEquals(adEntity.getPk(), extendedAd.getPk());
         Assertions.assertEquals(adEntity.getAuthor().getPhone(), extendedAd.getPhone());
         Assertions.assertEquals(adEntity.getAuthor().getFirstName(), extendedAd.getAuthorFirstName());
         Assertions.assertEquals(adEntity.getAuthor().getLastName(), extendedAd.getAuthorLastName());
         Assertions.assertEquals(adEntity.getAuthor().getUsername(), extendedAd.getEmail());
     }
 
+    // Тест маппинга CreateOrUpdateAd в AdEntity
     @Test
     void convertCreateOrUpdateAdToAdEntity() {
         CreateOrUpdateAd ad = new CreateOrUpdateAd("title", 100, "descr");
@@ -79,7 +83,7 @@ public class AdMapperTest {
 
         Assertions.assertNotNull(adEntity);
         Assertions.assertEquals(ad.getTitle(), adEntity.getTitle());
-        Assertions.assertEquals(ad.getPrice(),adEntity.getPrice());
-        Assertions.assertEquals(ad.getDescription(),adEntity.getDescription());
+        Assertions.assertEquals(ad.getPrice(), adEntity.getPrice());
+        Assertions.assertEquals(ad.getDescription(), adEntity.getDescription());
     }
 }

@@ -31,6 +31,7 @@ public interface CommentMapper {
     default int map(UserEntity user) {
         return user != null ? user.getId() : 0;
     }
+
     @Mapping(target = "pk", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     CommentEntity toEntity(CreateOrUpdateComment comment);
