@@ -24,24 +24,4 @@ public interface UserMapper {
     UserEntity toEntity(User dto);
 
     UserEntity updateUserFromDto(UpdateUser updateUser);
-
-
-    default UserEntity loginToEntity(Login login) {
-        if (login == null) {
-            return null;
-        }
-        UserEntity entity = new UserEntity();
-        entity.setUsername(login.getUsername());
-        return entity;
-    }
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "image", ignore = true)
-    UserEntity fromRegister(Register register);
-
-    default void updatePassword(UserEntity user, NewPassword newPassword) {
-        if (newPassword != null && user != null) {
-            user.setPassword(newPassword.getNewPassword());
-        }
-    }
 }
