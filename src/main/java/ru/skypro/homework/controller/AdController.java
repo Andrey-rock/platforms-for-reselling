@@ -49,7 +49,7 @@ public class AdController {
     @GetMapping
     public ResponseEntity<Ads> getAllAds() {
 //        return adService.getAllAds;
-    return ResponseEntity.ok(CONSTANT_ADS);
+        return ResponseEntity.ok(CONSTANT_ADS);
     }
 
     /**
@@ -60,10 +60,11 @@ public class AdController {
             @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
-    @PostMapping
-    public ResponseEntity<CreateOrUpdateAd> addNewAds(@RequestBody CreateOrUpdateAd newAd) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Ad> addNewAds(@RequestPart("properties") CreateOrUpdateAd properties,
+                                        @RequestPart("image") MultipartFile image) {
 //        return adService.addNewAd(ad).getId;
-    return ResponseEntity.ok(newAd);
+        return ResponseEntity.ok(AD1);
     }
 
     /**
@@ -109,7 +110,7 @@ public class AdController {
     @PatchMapping("{id}")
     public ResponseEntity<CreateOrUpdateAd> editInfoAboutAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
 //        return adService.editAd(ad);
-    return ResponseEntity.ok(ad);
+        return ResponseEntity.ok(ad);
     }
 
     /**
@@ -126,7 +127,7 @@ public class AdController {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 //        Ads ads = adService.getAdsForUser(userDetails.getUsername());
-    return ResponseEntity.ok(CONSTANT_ADS);
+        return ResponseEntity.ok(CONSTANT_ADS);
     }
 
     /**
@@ -143,7 +144,7 @@ public class AdController {
     public ResponseEntity<String> renewImageAd(@PathVariable int id,
                                                @RequestParam("image") MultipartFile imageFile) throws IOException {
 //        adService.renewPhoto(id, photo);
-    return ResponseEntity.ok("Изображение успешно обновлено");
+        return ResponseEntity.ok("Изображение успешно обновлено");
     }
 
 
