@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,8 @@ import static ru.skypro.homework.dto.Constants.*;
  * @author Svetlana Ryazanova, 2025
  * @version 0.0.1
  */
-
+@Slf4j
+@CrossOrigin(value = "http://localhost:3000")
 @Tag(name = "Объявления")
 @RestController
 @RequestMapping("/ads")

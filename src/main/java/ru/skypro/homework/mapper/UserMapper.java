@@ -23,5 +23,10 @@ public interface UserMapper {
     @Mapping(source = "email", target = "username")
     UserEntity toEntity(User dto);
 
-    UserEntity updateUserFromDto(UpdateUser updateUser);
+    UserEntity UserEntityFromDto(UpdateUser updateUser);
+
+    UpdateUser updateUserFromEntity(UserEntity userEntity);
+
+    UserEntity entityFromRegister(Register register);
 }
+
