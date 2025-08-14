@@ -6,19 +6,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 
 import java.io.IOException;
-
-import static ru.skypro.homework.dto.Constants.*;
 
 /**
  * Контроллер для работы с объявлениями
@@ -48,9 +45,8 @@ public class AdController {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @GetMapping
-    public ResponseEntity<Ads> getAllAds() {
-//        return adService.getAllAds;
-        return ResponseEntity.ok(CONSTANT_ADS);
+    public Ads getAllAds() {
+        return adService.getAllAds();
     }
 
     /**
@@ -62,11 +58,10 @@ public class AdController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Ad> addNewAds(@RequestPart("properties") CreateOrUpdateAd properties,
-                                        @RequestPart("image") MultipartFile image,
-                                        Authentication authentication) {
-//        return adService.addNewAd(ad).getId;
-        return ResponseEntity.ok(AD1);
+    public Ad addNewAds(@RequestPart("properties") CreateOrUpdateAd properties,
+                        @RequestPart("image") MultipartFile image,
+                        Authentication authentication) throws IOException {
+        return adService.addNewAds(properties, image, authentication);
     }
 
     /**
@@ -79,9 +74,8 @@ public class AdController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @GetMapping("{id}")
-    public ResponseEntity<ExtendedAd> getInfoAboutAd(@PathVariable Integer id) {
-//        return adService.getInfoAboutAd(id);
-        return ResponseEntity.ok(EXTENDED_AD);
+    public ExtendedAd getInfoAboutAd(@PathVariable Integer id) {
+        return adService.getInfoAboutAd(id);
     }
 
     /**
@@ -95,8 +89,8 @@ public class AdController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteAd(@PathVariable int id) {
-        return ResponseEntity.noContent().build();
+    public void deleteAd(@PathVariable int id) {
+        adService.deleteAd(id);
     }
 
     /**
@@ -110,9 +104,8 @@ public class AdController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @PatchMapping("{id}")
-    public ResponseEntity<CreateOrUpdateAd> editInfoAboutAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
-//        return adService.editAd(ad);
-        return ResponseEntity.ok(ad);
+    public CreateOrUpdateAd editInfoAboutAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
+        return adService.editInfoAboutAd(id, ad);
     }
 
     /**
@@ -124,12 +117,12 @@ public class AdController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @GetMapping("/me")
-    public ResponseEntity<Ads> receiveAdsAuthorizeUser() {
+    public Ads receiveAdsAuthorizeUser(@RequestParam String userName) {
 //        return adService.receiveAdsAuthorizeUser();
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 //        Ads ads = adService.getAdsForUser(userDetails.getUsername());
-        return ResponseEntity.ok(CONSTANT_ADS);
+        return adService.receiveAdsAuthorizeUser(userName);
     }
 
     /**
@@ -143,11 +136,9 @@ public class AdController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @PatchMapping(value = "{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> renewImageAd(@PathVariable int id,
-                                               @RequestParam("image") MultipartFile imageFile) throws IOException {
+    public boolean renewImageAd(@PathVariable int id,
+                                @RequestParam("image") MultipartFile imageFile) throws IOException {
 //        adService.renewPhoto(id, photo);
-        return ResponseEntity.ok("Изображение успешно обновлено");
+        return adService.renewImageAd(id, imageFile);
     }
-
-
 }
