@@ -12,6 +12,7 @@ import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.mapper.UserMapperImpl;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
@@ -31,14 +32,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserDetailsManager manager;
     private final PasswordEncoder encoder;
-    private final UserMapperImpl userMapperImpl;
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserDetailsManager manager, PasswordEncoder encoder, UserMapperImpl userMapperImpl,
+    public UserServiceImpl(UserDetailsManager manager, PasswordEncoder encoder, UserMapperImpl userMapper,
                            UserRepository userRepository) {
         this.manager = manager;
         this.encoder = encoder;
-        this.userMapperImpl = userMapperImpl;
+        this.userMapper = userMapper;
         this.userRepository = userRepository;
     }
 
@@ -66,7 +67,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUser(String username) {
-        return userMapperImpl.toDto(userRepository.findByUsername(username));
+        return userMapper.toDto(userRepository.findByUsername(username));
     }
 
     /**
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
             userEntity.setLastName(updateUser.getLastName());
             userEntity.setPhone(updateUser.getPhone());
             userRepository.save(userEntity);
-            return userMapperImpl.updateUserFromEntity(userEntity);
+            return userMapper.updateUserFromEntity(userEntity);
         } else {
             throw new RuntimeException("User not found");
         }
@@ -120,5 +121,4 @@ public class UserServiceImpl implements UserService {
 
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
-
 }
