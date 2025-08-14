@@ -18,7 +18,7 @@ import ru.skypro.homework.dto.CreateOrUpdateComment;
  */
 @Tag(name = "Комментарии")
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class CommentController {
     /**
