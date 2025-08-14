@@ -73,7 +73,7 @@ public class UserMapperTest {
         user.setPhone("89991111111");
 
 
-        UserEntity userEntity = userMapper.updateUserFromDto(user);
+        UserEntity userEntity = userMapper.UserEntityFromDto(user);
 
         Assertions.assertNotNull(userEntity);
         Assertions.assertEquals(user.getFirstName(), userEntity.getFirstName());
