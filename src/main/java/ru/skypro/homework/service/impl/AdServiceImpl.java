@@ -12,6 +12,7 @@ import ru.skypro.homework.dto.Ads;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.entity.AdEntity;
+import ru.skypro.homework.entity.ImageEntity;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.AdService;
@@ -31,7 +32,7 @@ public class AdServiceImpl implements AdService {
     Logger logger = LoggerFactory.getLogger(AdServiceImpl.class);
 
     @Value("${path.to.image.folder}")
-    private String avatarsDir;
+    private String imageDir;
 
     private final AdRepository adRepository;
     private final AdMapper adMapper;
@@ -73,7 +74,7 @@ public class AdServiceImpl implements AdService {
     public ExtendedAd getInfoAboutAd(Integer id) {
         logger.info("Method for get Information about Ad");
         AdEntity adEntity = adRepository.findById(id).get();
-        return adMapper.toEntity(adEntity);
+        return adMapper.toExtendedDto(adEntity);
     }
 
     @Override
@@ -91,7 +92,7 @@ public class AdServiceImpl implements AdService {
         adEntity.setDescription(ad.getDescription());
 
         adRepository.save(adEntity);
-        return adMapper.toEntity(adEntity);
+        return adMapper.toDtoAd(adEntity);
     }
 
     @Override
@@ -108,7 +109,7 @@ public class AdServiceImpl implements AdService {
         AdEntity adEntity = adRepository.findById(id).get();
 
         if (adEntity.getImage() != null) {
-            Path filePath = Path.of(avatarsDir, getExtensions(Objects.requireNonNull(imageFile.getOriginalFilename())));
+            Path filePath = Path.of(imageDir, getExtensions(Objects.requireNonNull(imageFile.getOriginalFilename())));
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
             try (
