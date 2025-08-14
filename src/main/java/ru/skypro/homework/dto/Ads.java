@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * DTO для получения объявлений.
  *
@@ -18,5 +20,5 @@ public class Ads {
 
     @Schema(description = "общее количество объявлений")
     private int count;
-    private Ad[] results;
+    private List<Ad> results;
 }

@@ -5,15 +5,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.impl.AdServiceImpl;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -33,11 +34,12 @@ import static ru.skypro.homework.dto.Constants.*;
 @RequestMapping("/ads")
 public class AdController {
 
-//    private final AdService adService;
-//
-//    public AdController(AdService adService) {
-//        this.adService = adService;
-//    }
+
+    private final AdServiceImpl adService;
+
+    public AdController(AdServiceImpl adService) {
+        this.adService = adService;
+    }
 
     /**
      * Получение всех объявлений
@@ -62,7 +64,8 @@ public class AdController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Ad> addNewAds(@RequestPart("properties") CreateOrUpdateAd properties,
-                                        @RequestPart("image") MultipartFile image) {
+                                        @RequestPart("image") MultipartFile image,
+                                        Authentication authentication) {
 //        return adService.addNewAd(ad).getId;
         return ResponseEntity.ok(AD1);
     }
