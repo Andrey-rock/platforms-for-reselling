@@ -2,9 +2,13 @@ package ru.skypro.homework.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import ru.skypro.homework.dto.Role;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Entity для пользователей.
@@ -53,5 +57,4 @@ public class UserEntity {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonIgnoreProperties
     private Collection<CommentEntity> comments;
-
 }
