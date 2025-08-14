@@ -29,6 +29,10 @@ public interface AdMapper {
     @Mapping(source = "author.username", target = "email")
     ExtendedAd toExtendedDto(AdEntity entity);
 
+    @Mapping(source = "author.id", target = "author")
+    @Mapping(target = "image", ignore = true)
+    CreateOrUpdateAd toDtoAd(AdEntity entity);
+
     @Mapping(target = "pk", ignore = true)
     @Mapping(target = "image", ignore = true)
     AdEntity toEntity(CreateOrUpdateAd createOrUpdateAd);
