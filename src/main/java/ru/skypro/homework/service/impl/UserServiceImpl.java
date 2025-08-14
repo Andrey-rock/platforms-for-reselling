@@ -3,6 +3,7 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -13,7 +14,6 @@ import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.UserMapper;
-import ru.skypro.homework.mapper.UserMapperImpl;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
 
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserDetailsManager manager, PasswordEncoder encoder, UserMapperImpl userMapper,
+    public UserServiceImpl(UserDetailsManager manager, PasswordEncoder encoder, UserMapper userMapper,
                            UserRepository userRepository) {
         this.manager = manager;
         this.encoder = encoder;
@@ -69,6 +69,10 @@ public class UserServiceImpl implements UserService {
     public User getUser(String username) {
         return userMapper.toDto(userRepository.findByUsername(username));
     }
+
+    @Transactional
+    public UserEntity getUserEntity(Authentication authentication) {
+        return userRepository.findUserEntityByUserName(authentication.getName());}
 
     /**
      * @param updateUser

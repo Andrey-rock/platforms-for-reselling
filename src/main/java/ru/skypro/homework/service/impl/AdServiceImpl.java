@@ -1,25 +1,26 @@
 package ru.skypro.homework.service.impl;
 
 import jakarta.validation.constraints.NotNull;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.Ad;
-import ru.skypro.homework.dto.Ads;
-import ru.skypro.homework.dto.CreateOrUpdateAd;
-import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
+import org.springframework.security.core.Authentication;
 import ru.skypro.homework.entity.ImageEntity;
+import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.AdMapper;
+import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,11 +37,17 @@ public class AdServiceImpl implements AdService {
 
     private final AdRepository adRepository;
     private final AdMapper adMapper;
+    private final UserServiceImpl userService;
+    private final ImageEntity imageEntity;
+    private final UserRepository userRepository;
 
 
-    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper) {
+    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserServiceImpl userService, ImageEntity imageEntity, UserRepository userRepository) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
+        this.userService = userService;
+        this.imageEntity = imageEntity;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -54,7 +61,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public Ad addNewAds(CreateOrUpdateAd properties, MultipartFile image,
-                        Authentication authentication) {
+                        Authentication authentication) throws IOException {
         logger.info("Method for Create new Ad");
 
         AdEntity adEntity = new AdEntity();
@@ -62,12 +69,13 @@ public class AdServiceImpl implements AdService {
         adEntity.setTitle(properties.getTitle());
         adEntity.setPrice(properties.getPrice());
         adEntity.setDescription(properties.getDescription());
-        adEntity.setAuthor();
-        adEntity.setImage();
+        adEntity.setAuthor(userService.getUserEntity(authentication));
+
+        adEntity.setImage(imageEntity.getFilePath()); //todo написать метод получения пути к файлу в сервисе для изображений
 
         adRepository.save(adEntity);
 
-        return adMapper.toEntity(adEntity);
+       return adMapper.toDto(adEntity);
     }
 
     @Override
@@ -96,10 +104,14 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
-    public Ads receiveAdsAuthorizeUser() {
+    public Ads receiveAdsAuthorizeUser(String userName) {
         logger.info("Method for Receive ads authorize User");
-
-        return adMapper.;
+        UserEntity author = userRepository.findUserEntityByUserName(userName);
+        List<Ad> ads = adRepository.findAllAdsByAuthor(userName)
+                .stream().map(ad -> adMapper.toDto(ad))
+                .collect(Collectors.toList());
+        Ads adsDto = new Ads(ads.size(), ads);
+        return adsDto;
     }
 
     @Override

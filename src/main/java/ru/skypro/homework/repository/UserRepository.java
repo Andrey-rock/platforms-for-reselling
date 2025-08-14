@@ -8,4 +8,6 @@ import ru.skypro.homework.entity.UserEntity;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     UserEntity findByUsername(String username);
+
+    UserEntity findUserEntityByUserName(String userName);
 }

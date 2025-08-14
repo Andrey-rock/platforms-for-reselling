@@ -1,6 +1,6 @@
 package ru.skypro.homework.service;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.dto.Ads;
@@ -14,7 +14,7 @@ public interface AdService  {
 
     Ads getAllAds();
 
-    Ad addNewAds(CreateOrUpdateAd properties, MultipartFile image, Authentication authentication);
+    Ad addNewAds(CreateOrUpdateAd properties, MultipartFile image, Authentication authentication) throws IOException;
 
     ExtendedAd getInfoAboutAd(Integer id);
 
@@ -22,7 +22,7 @@ public interface AdService  {
 
     CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad);
 
-    Ads receiveAdsAuthorizeUser();
+    Ads receiveAdsAuthorizeUser(String userName);
 
     boolean renewImageAd(Integer id, MultipartFile imageFile) throws IOException;
 }
