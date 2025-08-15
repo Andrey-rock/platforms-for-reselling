@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public UserEntity getUserEntity(Authentication authentication) {
-        return userRepository.findUserEntityByUserName(authentication.getName());}
+        return userRepository.findByUsername(authentication.getName());}
 
     /**
      * @param updateUser

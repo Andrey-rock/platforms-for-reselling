@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import ru.skypro.homework.entity.ImageEntity;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.AdMapper;
-import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
@@ -21,12 +20,8 @@ import ru.skypro.homework.service.AdService;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 public class AdServiceImpl implements AdService {
@@ -111,7 +106,6 @@ public class AdServiceImpl implements AdService {
     @Override
     public Ads receiveAdsAuthorizeUser(String userName) {
         logger.info("Method for Receive ads authorize User");
-        UserEntity author = userRepository.findUserEntityByUserName(userName);
         List<Ad> ads = adRepository.findAllAdsByAuthor(userName)
                 .stream().map(ad -> adMapper.toDto(ad))
                 .collect(Collectors.toList());
@@ -135,11 +129,5 @@ public class AdServiceImpl implements AdService {
         adRepository.save(adEntity);
 
         return true;
-    }
-
-
-    private @NotNull String getExtensions(@NotNull String fileName) {
-
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }

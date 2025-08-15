@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,6 +90,7 @@ public class AdController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content())
     })
     @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAd(@PathVariable int id) {
         adService.deleteAd(id);
     }
