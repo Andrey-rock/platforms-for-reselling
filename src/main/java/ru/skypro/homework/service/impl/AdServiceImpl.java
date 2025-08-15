@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
@@ -40,14 +41,16 @@ public class AdServiceImpl implements AdService {
     private final UserServiceImpl userService;
     private final ImageEntity imageEntity;
     private final UserRepository userRepository;
+    private final ImageServiceImpl imageService;
 
 
-    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserServiceImpl userService, ImageEntity imageEntity, UserRepository userRepository) {
+    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserServiceImpl userService, ImageEntity imageEntity, UserRepository userRepository, ImageServiceImpl imageService) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
         this.userService = userService;
         this.imageEntity = imageEntity;
         this.userRepository = userRepository;
+        this.imageService = imageService;
     }
 
     @Override
@@ -64,18 +67,20 @@ public class AdServiceImpl implements AdService {
                         Authentication authentication) throws IOException {
         logger.info("Method for Create new Ad");
 
+        UserEntity user = userService.getUserEntity(authentication);
         AdEntity adEntity = new AdEntity();
 
         adEntity.setTitle(properties.getTitle());
         adEntity.setPrice(properties.getPrice());
         adEntity.setDescription(properties.getDescription());
-        adEntity.setAuthor(userService.getUserEntity(authentication));
+        adEntity.setAuthor(user);
 
-        adEntity.setImage(imageEntity.getFilePath()); //todo написать метод получения пути к файлу в сервисе для изображений
+        Path filePath = Path.of(imageDir, adEntity.hashCode() + "." + StringUtils.getFilenameExtension(image.getOriginalFilename()));
+        adEntity.setImage(filePath.toString());
 
         adRepository.save(adEntity);
 
-       return adMapper.toDto(adEntity);
+        return adMapper.toDto(adEntity);
     }
 
     @Override
@@ -120,21 +125,14 @@ public class AdServiceImpl implements AdService {
 
         AdEntity adEntity = adRepository.findById(id).get();
 
-        if (adEntity.getImage() != null) {
-            Path filePath = Path.of(imageDir, getExtensions(Objects.requireNonNull(imageFile.getOriginalFilename())));
-            Files.createDirectories(filePath.getParent());
-            Files.deleteIfExists(filePath);
-            try (
-                    InputStream is = imageFile.getInputStream();
-                    OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-                    BufferedInputStream bis = new BufferedInputStream(is, 1024);
-                    BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
-            ) {
-                bis.transferTo(bos);
-            }
-            adEntity.setImage(filePath.toFile().getAbsolutePath());
-            adRepository.save(adEntity);
-        }
+        Path filePath = Path.of(imageDir, adEntity.hashCode() + "." + StringUtils.getFilenameExtension(imageFile.getOriginalFilename()));
+        Files.createDirectories(filePath.getParent());
+        Files.deleteIfExists(filePath);
+
+        imageService.readAndWriteImage(imageFile, filePath);
+
+        adEntity.setImage(filePath.toString());
+        adRepository.save(adEntity);
 
         return true;
     }
