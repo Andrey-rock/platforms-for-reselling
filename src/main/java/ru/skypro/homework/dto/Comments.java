@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * DTO для получения комментариев объявления.
  *
@@ -18,5 +20,5 @@ public class Comments {
 
     @Schema(description = "общее количество комментариев")
     private int count;
-    private Comment[] results;
+    private List<Comment> results;
 }

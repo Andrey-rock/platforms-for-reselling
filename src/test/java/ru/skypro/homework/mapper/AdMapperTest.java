@@ -8,7 +8,10 @@ import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.entity.AdEntity;
+import ru.skypro.homework.entity.CommentEntity;
 import ru.skypro.homework.entity.UserEntity;
+
+import java.util.List;
 
 @SpringBootTest
 public class AdMapperTest {
@@ -22,7 +25,7 @@ public class AdMapperTest {
 
         UserEntity author = new UserEntity();
         author.setId(10);
-        AdEntity adEntity = new AdEntity(1, "descr", 100, "title", "image", author);
+        AdEntity adEntity = new AdEntity(1, "descr", 100, "title", "image", author, List.of(new CommentEntity()));
 
         Ad ad = adMapper.toDto(adEntity);
 
@@ -59,7 +62,7 @@ public class AdMapperTest {
         author.setFirstName("Jon");
         author.setLastName("Do");
         author.setPhone("89991111111");
-        AdEntity adEntity = new AdEntity(1, "descr", 100, "title", "image", author);
+        AdEntity adEntity = new AdEntity(1, "descr", 100, "title", "image", author, List.of(new CommentEntity()));
 
         ExtendedAd extendedAd = adMapper.toExtendedDto(adEntity);
 
