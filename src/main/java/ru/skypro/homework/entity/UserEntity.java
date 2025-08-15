@@ -2,9 +2,6 @@ package ru.skypro.homework.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import ru.skypro.homework.dto.Role;
 
 import java.util.Collection;
@@ -51,10 +48,8 @@ public class UserEntity {
     private String image;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnoreProperties
     private Collection<AdEntity> ads;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnoreProperties
     private Collection<CommentEntity> comments;
 }

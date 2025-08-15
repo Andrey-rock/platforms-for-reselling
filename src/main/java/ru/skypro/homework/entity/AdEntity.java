@@ -3,6 +3,8 @@ package ru.skypro.homework.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
+
 /**
  * Entity для объявлений.
  *
@@ -37,4 +39,7 @@ public class AdEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private UserEntity author;
+
+    @OneToMany(mappedBy = "ad", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<CommentEntity> comments;
 }

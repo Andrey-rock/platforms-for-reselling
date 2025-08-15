@@ -30,22 +30,24 @@ CREATE TABLE комментарии
     время_создания    BIGINT,
     текст_комментария varchar(64),
     author_id         INT not null,
-    FOREIGN KEY (author_id) REFERENCES пользователи (id) ON DELETE CASCADE
+    FOREIGN KEY (author_id) REFERENCES пользователи (id) ON DELETE CASCADE,
+    ad_id             INT,
+    FOREIGN KEY (ad_id) REFERENCES объявления (Id_объявления) ON DELETE CASCADE
 );
 
 -- changeset andrey-rock:2
 
 CREATE TABLE users
 (
-    id SERIAL primary key,
+    id       SERIAL primary key,
     username varchar(32) not null,
     password varchar(64) not null,
-    enabled BOOLEAN not null
+    enabled  BOOLEAN     not null
 );
 
 CREATE TABLE authorities
 (
-    id SERIAL primary key,
-    username varchar(32) not null,
+    id        SERIAL primary key,
+    username  varchar(32) not null,
     authority varchar(64) not null
 );

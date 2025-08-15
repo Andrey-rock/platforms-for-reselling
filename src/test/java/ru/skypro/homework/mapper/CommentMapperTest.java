@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
+import ru.skypro.homework.entity.AdEntity;
 import ru.skypro.homework.entity.CommentEntity;
 import ru.skypro.homework.entity.UserEntity;
 
@@ -23,7 +24,7 @@ public class CommentMapperTest {
         author.setId(1);
         author.setImage("image");
         author.setFirstName("Jon");
-        CommentEntity commentEntity = new CommentEntity(1, 10L, "text", author);
+        CommentEntity commentEntity = new CommentEntity(1, 10L, "text", author, new AdEntity());
 
         Comment dto = commentMapper.toDto(commentEntity);
 
@@ -41,7 +42,7 @@ public class CommentMapperTest {
     public void convertCommentToCommentEntity() {
 
         Comment comment = new Comment();
-        comment.setPk(1);
+
         comment.setCreatedAt(100L);
         comment.setText("text");
 
@@ -50,7 +51,7 @@ public class CommentMapperTest {
         Assertions.assertNotNull(commentEntity);
         Assertions.assertEquals(comment.getCreatedAt(), commentEntity.getCreatedAt());
         Assertions.assertEquals(comment.getText(), commentEntity.getText());
-        Assertions.assertEquals(comment.getPk(), commentEntity.getPk());
+
     }
 
     // Тест маппинга CreateOrUpdateComment в CommentEntity

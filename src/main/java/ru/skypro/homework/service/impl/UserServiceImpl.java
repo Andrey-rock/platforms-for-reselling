@@ -24,9 +24,17 @@ import java.util.Objects;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+/**
+ * Сервис управления пользователями.
+ *
+ * @author Andrei Bronskii, 2025
+ * @version 0.0.1
+ */
+
 @Service
 public class UserServiceImpl implements UserService {
 
+    // Папка для хранения аватарок пользователей на сервере
     @Value("${path.to.avatars.folder}")
     private String avatarsDir;
 
@@ -44,26 +52,35 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @param newPassword
-     * @return
+     * Метод установки нового пароля
+     *
+     * @param newPassword - DTO, содержащий старый и новый пароль
+     * @return true, если старый пароль верный и обновление прошло успешно,
+     * false, если старый пароль неверный
      */
     @Override
-    public boolean setPassword(String username, NewPassword newPassword) {
+    public boolean setPassword(String username, @NotNull NewPassword newPassword) {
         UserDetails userDetails = manager.loadUserByUsername(username);
         String currentPass = newPassword.getCurrentPassword();
         String newPass = newPassword.getNewPassword();
         if (encoder.matches(currentPass, userDetails.getPassword())) {
             manager.changePassword(currentPass, encoder.encode(newPass));
+
+            // Обновление пароля в таблице "пользователи". Будет удалено после нормализации БД
+            // TODO: удалить после нормализации БД
             UserEntity userEntity = userRepository.findByUsername(username);
             userEntity.setPassword(encoder.encode(newPass));
             userRepository.save(userEntity);
+
             return true;
         }
         return false;
     }
 
     /**
-     * @return
+     * Метод получения информации об авторизованном пользователе
+     *
+     * @return UpdateUser - DTO c информацией о пользователе
      */
     @Override
     public User getUser(String username) {
@@ -71,8 +88,13 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * @param updateUser
-     * @return
+     * Метод обновления информации об авторизованном пользователе
+     *
+     * @param updateUser - DTO c информацией о пользователе
+     *
+     * @return UpdateUser - DTO c информацией о пользователе после обновления
+     *
+     * @throws RuntimeException, если пользователь не найден
      */
     @Override
     public UpdateUser updateUser(String username, UpdateUser updateUser) {
@@ -84,13 +106,17 @@ public class UserServiceImpl implements UserService {
             userRepository.save(userEntity);
             return userMapper.updateUserFromEntity(userEntity);
         } else {
+            // TODO: позже заменить на собственное исключение
             throw new RuntimeException("User not found");
         }
     }
 
     /**
-     * @param file
-     * @return
+     * Метод обновления аватара авторизованного пользователя
+     *
+     * @param file - изображение в формате PNG, JPEG, GIF или TIFF.
+     * @return true, если пользователь авторизован и обновление прошло успешно,
+     * false, если пользователь не авторизован
      */
     @Transactional
     @Override
@@ -110,7 +136,8 @@ public class UserServiceImpl implements UserService {
             ) {
                 bis.transferTo(bos);
             }
-            userEntity.setImage(filePath.toFile().getAbsolutePath());
+            userEntity.setImage("/images/" + username + "."
+                    + getExtensions(Objects.requireNonNull(file.getOriginalFilename())));
             userRepository.save(userEntity);
             return true;
         }

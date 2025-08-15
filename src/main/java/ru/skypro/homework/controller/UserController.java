@@ -9,11 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
-import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.service.UserService;
@@ -28,7 +26,7 @@ import ru.skypro.homework.service.UserService;
 @Tag(name = "Пользователи")
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(value = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
@@ -48,11 +46,15 @@ public class UserController {
     })
     @PostMapping("/set_password")
     public ResponseEntity<?> setPassword(@RequestBody NewPassword newPasswordPayload, Authentication authentication) {
+        String username = authentication.getName();
+        if (username == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
+        }
         boolean updateSuccess = userService.setPassword(authentication.getName(), newPasswordPayload);
         if (updateSuccess) {
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Не удалось обновить пароль");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Старый пароль введен неверно");
         }
     }
 
@@ -65,7 +67,11 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @GetMapping("/me")
-    public ResponseEntity<User> getUser(Authentication authentication) {
+    public ResponseEntity<?> getUser(Authentication authentication) {
+        String username = authentication.getName();
+        if (username == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
+        }
         User user = userService.getUser(authentication.getName());
         return ResponseEntity.ok(user);
     }
@@ -79,9 +85,13 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @PatchMapping("/me")
-    public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser, Authentication authentication) {
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUser updateUser, Authentication authentication) {
+        String username = authentication.getName();
+        if (username == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
+        }
         UpdateUser update = userService.updateUser(authentication.getName(), updateUser);
-        return ResponseEntity.ok(updateUser);
+        return ResponseEntity.ok(update);
     }
 
     /**
@@ -93,10 +103,12 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> updateUserImage(@RequestParam("image") MultipartFile imageFile, Authentication authentication) {
+    public ResponseEntity<?> updateUserImage(@RequestParam("image") MultipartFile imageFile, Authentication authentication) {
         try {
-            userService.updateUserImage(authentication.getName(), imageFile);
-            return ResponseEntity.ok("Аватар успешно обновлён");
+            if (userService.updateUserImage(authentication.getName(), imageFile)) {
+                return ResponseEntity.ok("Аватар успешно обновлён");
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при обновлении аватара");
         }
