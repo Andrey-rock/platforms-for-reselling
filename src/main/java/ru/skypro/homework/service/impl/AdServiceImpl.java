@@ -1,30 +1,27 @@
 package ru.skypro.homework.service.impl;
 
 import jakarta.validation.constraints.NotNull;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.Ad;
-import ru.skypro.homework.dto.Ads;
-import ru.skypro.homework.dto.CreateOrUpdateAd;
-import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
+import org.springframework.security.core.Authentication;
 import ru.skypro.homework.entity.ImageEntity;
+import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 public class AdServiceImpl implements AdService {
@@ -36,11 +33,19 @@ public class AdServiceImpl implements AdService {
 
     private final AdRepository adRepository;
     private final AdMapper adMapper;
+    private final UserServiceImpl userService;
+    private final ImageEntity imageEntity;
+    private final UserRepository userRepository;
+    private final ImageServiceImpl imageService;
 
 
-    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper) {
+    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserServiceImpl userService, ImageEntity imageEntity, UserRepository userRepository, ImageServiceImpl imageService) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
+        this.userService = userService;
+        this.imageEntity = imageEntity;
+        this.userRepository = userRepository;
+        this.imageService = imageService;
     }
 
     @Override
@@ -54,20 +59,23 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public Ad addNewAds(CreateOrUpdateAd properties, MultipartFile image,
-                        Authentication authentication) {
+                        Authentication authentication) throws IOException {
         logger.info("Method for Create new Ad");
 
+        UserEntity user = userService.getUserEntity(authentication);
         AdEntity adEntity = new AdEntity();
 
         adEntity.setTitle(properties.getTitle());
         adEntity.setPrice(properties.getPrice());
         adEntity.setDescription(properties.getDescription());
-        adEntity.setAuthor();
-        adEntity.setImage();
+        adEntity.setAuthor(user);
+
+        Path filePath = Path.of(imageDir, adEntity.hashCode() + "." + StringUtils.getFilenameExtension(image.getOriginalFilename()));
+        adEntity.setImage(filePath.toString());
 
         adRepository.save(adEntity);
 
-        return adMapper.toEntity(adEntity);
+        return adMapper.toDto(adEntity);
     }
 
     @Override
@@ -96,10 +104,13 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
-    public Ads receiveAdsAuthorizeUser() {
+    public Ads receiveAdsAuthorizeUser(String userName) {
         logger.info("Method for Receive ads authorize User");
-
-        return adMapper.;
+        List<Ad> ads = adRepository.findAllAdsByAuthor(userName)
+                .stream().map(ad -> adMapper.toDto(ad))
+                .collect(Collectors.toList());
+        Ads adsDto = new Ads(ads.size(), ads);
+        return adsDto;
     }
 
     @Override
@@ -108,28 +119,15 @@ public class AdServiceImpl implements AdService {
 
         AdEntity adEntity = adRepository.findById(id).get();
 
-        if (adEntity.getImage() != null) {
-            Path filePath = Path.of(imageDir, getExtensions(Objects.requireNonNull(imageFile.getOriginalFilename())));
-            Files.createDirectories(filePath.getParent());
-            Files.deleteIfExists(filePath);
-            try (
-                    InputStream is = imageFile.getInputStream();
-                    OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-                    BufferedInputStream bis = new BufferedInputStream(is, 1024);
-                    BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
-            ) {
-                bis.transferTo(bos);
-            }
-            adEntity.setImage(filePath.toFile().getAbsolutePath());
-            adRepository.save(adEntity);
-        }
+        Path filePath = Path.of(imageDir, adEntity.hashCode() + "." + StringUtils.getFilenameExtension(imageFile.getOriginalFilename()));
+        Files.createDirectories(filePath.getParent());
+        Files.deleteIfExists(filePath);
+
+        imageService.readAndWriteImage(imageFile, filePath);
+
+        adEntity.setImage(filePath.toString());
+        adRepository.save(adEntity);
 
         return true;
-    }
-
-
-    private @NotNull String getExtensions(@NotNull String fileName) {
-
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }

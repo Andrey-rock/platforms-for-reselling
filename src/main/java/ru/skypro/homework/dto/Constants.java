@@ -6,7 +6,6 @@ public class Constants {
     public static final ExtendedAd EXTENDED_AD = new ExtendedAd(10, "Иван", "Иванов",
             "ivan@gmail.com", "link", "8(999)1111111", 1000, "Ad123");
 
-    public static final Ads CONSTANT_ADS = new Ads(2, new Ad[]{AD1, AD2});
 
 }
 

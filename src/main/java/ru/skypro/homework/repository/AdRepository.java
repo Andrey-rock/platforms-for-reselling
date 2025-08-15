@@ -5,6 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.entity.AdEntity;
 
+import java.util.List;
+
 @Repository
 public interface AdRepository extends JpaRepository<AdEntity,Integer> {
+    List<AdEntity> findAllAdsByAuthor(String userName);
 }
