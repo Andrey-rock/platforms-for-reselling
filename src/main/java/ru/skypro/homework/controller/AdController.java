@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ import java.io.IOException;
 public class AdController {
 
 
-    private final AdServiceImpl adService;
+    private final AdService adService;
 
     public AdController(AdServiceImpl adService) {
         this.adService = adService;
@@ -119,12 +120,12 @@ public class AdController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content())
     })
     @GetMapping("/me")
-    public Ads receiveAdsAuthorizeUser(@RequestParam String userName) {
+    public Ads receiveAdsAuthorizeUser(Authentication authentication) {
 //        return adService.receiveAdsAuthorizeUser();
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 //        Ads ads = adService.getAdsForUser(userDetails.getUsername());
-        return adService.receiveAdsAuthorizeUser(userName);
+        return adService.receiveAdsAuthorizeUser(authentication.getName());
     }
 
     /**
