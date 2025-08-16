@@ -3,7 +3,6 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -87,10 +86,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(userRepository.findByUsername(username));
     }
 
-    @Transactional
-    public UserEntity getUserEntity(Authentication authentication) {
-        return userRepository.findByUsername(authentication.getName());}
-
     /**
      * Метод обновления информации об авторизованном пользователе
      *
@@ -128,7 +123,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
 
-            Path filePath = Path.of(avatarsDir, username + "."
+            Path filePath = Path.of(avatarsDir, username.substring(0, 4) + "."
                     + getExtensions(Objects.requireNonNull(file.getOriginalFilename())));
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
@@ -140,7 +135,7 @@ public class UserServiceImpl implements UserService {
             ) {
                 bis.transferTo(bos);
             }
-            userEntity.setImage("/images/" + username + "."
+            userEntity.setImage("/images/" + username.substring(0, 4) + "."
                     + getExtensions(Objects.requireNonNull(file.getOriginalFilename())));
             userRepository.save(userEntity);
             return true;
