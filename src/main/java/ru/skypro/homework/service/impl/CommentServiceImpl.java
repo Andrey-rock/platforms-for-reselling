@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class CommentServiceImpl implements CommentService {
+
+    private static Integer counter = 30;
 
     private final CommentRepository commentRepository;
     private final AdRepository adRepository;
@@ -78,9 +81,12 @@ public class CommentServiceImpl implements CommentService {
         entity.setAuthor(user);
         entity.setAd(adRepository.findById(id).orElseThrow(() -> new NoSuchElementException("объявление не найдено")));
 
+        //Временная заглушка
+        entity.setPk(counter++);
+
         commentRepository.save(entity);
 
-        return comment1;
+        return commentMapper.toDto(entity);
     }
 
     /**
@@ -89,13 +95,14 @@ public class CommentServiceImpl implements CommentService {
      * @return
      */
     @Override
+    @Transactional
     public boolean deleteComment(Integer adId, Integer commentId) {
         AdEntity ad = adRepository.findById(adId).orElseThrow(() -> new NoSuchElementException("объявление не найдено"));
         CommentEntity comment = ad.getComments().stream()
                 .filter(c -> c.getPk().equals(commentId))
                 .findFirst().orElseThrow(() -> new NoSuchElementException("комментарий не найден"));
-        log.info("Удаляется комментарий{}", comment.getText());
-        commentRepository.deleteById(comment.getPk());
+        log.info("Удаляется комментарий id={}", comment.getPk());
+        commentRepository.deleteByCommId(comment.getPk());
         return true;
     }
 
@@ -128,10 +135,8 @@ public class CommentServiceImpl implements CommentService {
 
         User currentUser = securityUtils.getCurrentUser();
 
-        if (!"ADMIN".equals(currentUser.getRole())) {
-            if (!comment1.getAuthor().equals(currentUser.getId())) {
-                throw new AccessDeniedException("У вас нет прав на редактирование этого комментария");
-            }
+        if (!(comment1.getAuthor().getId()).equals(currentUser.getId())) {
+            throw new AccessDeniedException("У вас нет прав на редактирование этого комментария");
         }
 
         comment1.setText(comment.getText());
