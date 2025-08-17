@@ -92,17 +92,17 @@ public class AdServiceImpl implements AdService {
         adRepository.deleteById(id);
     }
 
-    @Override
+        @Override
     public CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad) {
-        logger.info("Method for Edite Info about Ad");
-        AdEntity adEntity = adRepository.findById(id).get();
-        adEntity.setTitle(ad.getTitle());
-        adEntity.setPrice(ad.getPrice());
-        adEntity.setDescription(ad.getDescription());
+           logger.info("Method for Edite Info about Ad");
+           AdEntity adEntity = adRepository.findById(id).get();
+           adEntity.setTitle(ad.getTitle());
+           adEntity.setPrice(ad.getPrice());
+           adEntity.setDescription(ad.getDescription());
 
-        adRepository.save(adEntity);
-        return adMapper.toDtoAd(adEntity);
-    }
+           adRepository.save(adEntity);
+           return adMapper.toDtoAd(adEntity);
+       }
 
     @Override
     public Ads receiveAdsAuthorizeUser(String userName) {
@@ -132,4 +132,5 @@ public class AdServiceImpl implements AdService {
 
         return true;
     }
+
 }
