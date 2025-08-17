@@ -127,7 +127,7 @@ public class AdServiceImpl implements AdService {
 
 //        imageService.readAndWriteImage(imageFile, filePath);
 
-        adEntity.setImage(filePath.toString());
+        adEntity.setImage("/images/" + adEntity.hashCode() + "." + StringUtils.getFilenameExtension(imageFile.getOriginalFilename()));
         adRepository.save(adEntity);
 
         return true;
