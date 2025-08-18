@@ -51,3 +51,13 @@ CREATE TABLE authorities
     username  varchar(32) not null,
     authority varchar(64) not null
 );
+
+-- changeset andrey-rock:3
+
+CREATE TABLE изображения
+(
+    id               SERIAL primary key,
+    размер_файла     BIGINT      not null,
+    тип_файла        varchar(16) not null,
+    содержимое_файла bytea
+);

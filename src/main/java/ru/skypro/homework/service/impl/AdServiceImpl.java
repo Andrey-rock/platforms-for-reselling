@@ -16,6 +16,7 @@ import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.ImageService;
 
 
 import java.io.*;
@@ -24,36 +25,31 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+
 @Service
 public class AdServiceImpl implements AdService {
 
     Logger logger = LoggerFactory.getLogger(AdServiceImpl.class);
 
-    @Value("${path.to.avatars.folder}")
-    private String imageDir;
-
     private final AdRepository adRepository;
     private final AdMapper adMapper;
-
-//    private final ImageEntity imageEntity;
     private final UserRepository userRepository;
-//    private final ImageServiceImpl imageService;
+    private final ImageService imageService;
 
 
-    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserRepository userRepository) {
+    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserRepository userRepository, ImageService imageService) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
-
-//        this.imageEntity = imageEntity;
         this.userRepository = userRepository;
-//        this.imageService = imageService;
+        this.imageService = imageService;
     }
 
     @Override
     public Ads getAllAds() {
         logger.info("Method for find All ads");
         List<Ad> ads = adRepository.findAll().stream().
-                map(dto -> adMapper.toDto(dto)).
+                map(adMapper::toDto).
                 collect(Collectors.toList());
         return new Ads(ads.size(), ads);
     }
@@ -70,10 +66,7 @@ public class AdServiceImpl implements AdService {
         adEntity.setPrice(properties.getPrice());
         adEntity.setDescription(properties.getDescription());
         adEntity.setAuthor(user);
-
-        Path filePath = Path.of(imageDir, adEntity.hashCode() + "." + StringUtils.getFilenameExtension(image.getOriginalFilename()));
-        adEntity.setImage(filePath.toString());
-
+        adEntity.setImage("/images/" + imageService.uploadImage(image));
         adRepository.save(adEntity);
 
         return adMapper.toDto(adEntity);
@@ -92,27 +85,26 @@ public class AdServiceImpl implements AdService {
         adRepository.deleteById(id);
     }
 
-        @Override
+    @Override
     public CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad) {
-           logger.info("Method for Edite Info about Ad");
-           AdEntity adEntity = adRepository.findById(id).get();
-           adEntity.setTitle(ad.getTitle());
-           adEntity.setPrice(ad.getPrice());
-           adEntity.setDescription(ad.getDescription());
+        logger.info("Method for Edite Info about Ad");
+        AdEntity adEntity = adRepository.findById(id).get();
+        adEntity.setTitle(ad.getTitle());
+        adEntity.setPrice(ad.getPrice());
+        adEntity.setDescription(ad.getDescription());
 
-           adRepository.save(adEntity);
-           return adMapper.toDtoAd(adEntity);
-       }
+        adRepository.save(adEntity);
+        return adMapper.toDtoAd(adEntity);
+    }
 
     @Override
     public Ads receiveAdsAuthorizeUser(String userName) {
         logger.info("Method for Receive ads authorize User");
         UserEntity user = userRepository.findByUsername(userName);
         List<Ad> ads = adRepository.findAllAdsByAuthor(user)
-                .stream().map(ad -> adMapper.toDto(ad))
+                .stream().map(adMapper::toDto)
                 .collect(Collectors.toList());
-        Ads adsDto = new Ads(ads.size(), ads);
-        return adsDto;
+        return new Ads(ads.size(), ads);
     }
 
     @Override
@@ -121,16 +113,10 @@ public class AdServiceImpl implements AdService {
 
         AdEntity adEntity = adRepository.findById(id).get();
 
-        Path filePath = Path.of(imageDir, adEntity.hashCode() + "." + StringUtils.getFilenameExtension(imageFile.getOriginalFilename()));
-        Files.createDirectories(filePath.getParent());
-        Files.deleteIfExists(filePath);
+        adEntity.setImage("/images/" + imageService.uploadImage(imageFile));
 
-//        imageService.readAndWriteImage(imageFile, filePath);
-
-        adEntity.setImage("/images/" + adEntity.hashCode() + "." + StringUtils.getFilenameExtension(imageFile.getOriginalFilename()));
         adRepository.save(adEntity);
 
         return true;
     }
-
 }

@@ -14,6 +14,7 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
 
 import java.io.*;
@@ -33,21 +34,19 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class UserServiceImpl implements UserService {
 
-    // Папка для хранения аватарок пользователей на сервере
-    @Value("${path.to.avatars.folder}")
-    private String avatarsDir;
-
     private final UserDetailsManager manager;
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final ImageService imageService;
 
     public UserServiceImpl(UserDetailsManager manager, PasswordEncoder encoder, UserMapper userMapper,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, ImageService imageService) {
         this.manager = manager;
         this.encoder = encoder;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
+        this.imageService = imageService;
     }
 
     /**
@@ -123,28 +122,10 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
 
-            Path filePath = Path.of(avatarsDir, username.substring(0, 4) + "."
-                    + getExtensions(Objects.requireNonNull(file.getOriginalFilename())));
-            Files.createDirectories(filePath.getParent());
-            Files.deleteIfExists(filePath);
-            try (
-                    InputStream is = file.getInputStream();
-                    OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-                    BufferedInputStream bis = new BufferedInputStream(is, 1024);
-                    BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
-            ) {
-                bis.transferTo(bos);
-            }
-            userEntity.setImage("/images/" + username.substring(0, 4) + "."
-                    + getExtensions(Objects.requireNonNull(file.getOriginalFilename())));
-            userRepository.save(userEntity);
+            userEntity.setImage("/images/" + imageService.uploadImage(file));
+
             return true;
         }
         return false;
-    }
-
-    private @NotNull String getExtensions(@NotNull String fileName) {
-
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }
