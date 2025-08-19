@@ -30,10 +30,10 @@ public class CommentEntity {
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "id_пользователя")
     private UserEntity author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ad_id")
+    @JoinColumn(name = "id_объявления")
     private AdEntity ad;
 }

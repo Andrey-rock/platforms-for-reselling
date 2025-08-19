@@ -3,9 +3,8 @@ package ru.skypro.homework.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
@@ -17,15 +16,12 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
+import ru.skypro.homework.service.SecurityUtils;
 
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 public class AdServiceImpl implements AdService {
@@ -36,13 +32,15 @@ public class AdServiceImpl implements AdService {
     private final AdMapper adMapper;
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final SecurityUtils securityUtils;
 
 
-    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserRepository userRepository, ImageService imageService) {
+    public AdServiceImpl(AdRepository adRepository, AdMapper adMapper, UserRepository userRepository, ImageService imageService, SecurityUtils securityUtils) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
         this.userRepository = userRepository;
         this.imageService = imageService;
+        this.securityUtils = securityUtils;
     }
 
     @Override
@@ -81,12 +79,26 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public void deleteAd(Integer id) {
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (!currentUser.getRole().name().equals("ADMIN")) {
+            if (!(adRepository.getReferenceById(id).getAuthor().getId()).equals(currentUser.getId())) {
+                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
+            }
+        }
         logger.info("Method for Deleting Ad");
         adRepository.deleteById(id);
     }
 
     @Override
     public CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad) {
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (!currentUser.getRole().name().equals("ADMIN")) {
+            if (!(adRepository.getReferenceById(id).getAuthor().getId()).equals(currentUser.getId())) {
+                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
+            }
+        }
         logger.info("Method for Edite Info about Ad");
         AdEntity adEntity = adRepository.findById(id).get();
         adEntity.setTitle(ad.getTitle());

@@ -20,6 +20,7 @@ import ru.skypro.homework.mapper.UserMapperImpl;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AuthService;
 import ru.skypro.homework.service.impl.AuthServiceImpl;
+import ru.skypro.homework.service.impl.MyUserDetailsServiceImpl;
 
 /**
  * Тестирование AuthService
@@ -29,7 +30,7 @@ import ru.skypro.homework.service.impl.AuthServiceImpl;
  */
 public class AuthServiceTest {
 
-    private UserDetailsManager manager;
+    private MyUserDetailsServiceImpl manager;
     private PasswordEncoder encoder;
     private UserMapperImpl userMapperImpl;
     private UserRepository userRepository;
@@ -38,12 +39,12 @@ public class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        manager = mock(UserDetailsManager.class);
+        manager = mock(MyUserDetailsServiceImpl.class);
         encoder = mock(PasswordEncoder.class);
         userMapperImpl = mock(UserMapperImpl.class);
         userRepository = mock(UserRepository.class);
 
-        authService = new AuthServiceImpl(manager, encoder, userMapperImpl, userRepository);
+        authService = new AuthServiceImpl(manager, encoder, userMapperImpl);
     }
 
     // Тестирование метода login. Успешный вход
@@ -120,10 +121,10 @@ public class AuthServiceTest {
 
         verify(encoder).encode(register.getPassword());
 
-        ArgumentCaptor<SecurityUser> userCaptor = ArgumentCaptor.forClass(SecurityUser.class);
+        ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
         verify(manager).createUser(userCaptor.capture());
 
-        SecurityUser createdUser = userCaptor.getValue();
+        UserEntity createdUser = userCaptor.getValue();
 
         assertEquals("newUser", createdUser.getUsername());
 

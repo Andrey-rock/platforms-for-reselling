@@ -2,10 +2,7 @@ package ru.skypro.homework.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
@@ -18,11 +15,7 @@ import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 /**
  * Сервис управления пользователями.
@@ -34,16 +27,15 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserDetailsManager manager;
-    private final PasswordEncoder encoder;
+    private final MyUserDetailsServiceImpl manager;
+
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final ImageService imageService;
 
-    public UserServiceImpl(UserDetailsManager manager, PasswordEncoder encoder, UserMapper userMapper,
+    public UserServiceImpl(MyUserDetailsServiceImpl manager, UserMapper userMapper,
                            UserRepository userRepository, ImageService imageService) {
         this.manager = manager;
-        this.encoder = encoder;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.imageService = imageService;
@@ -58,22 +50,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean setPassword(String username, @NotNull NewPassword newPassword) {
-        UserDetails userDetails = manager.loadUserByUsername(username);
-        String currentPass = newPassword.getCurrentPassword();
-        String newPass = newPassword.getNewPassword();
-        if (encoder.matches(currentPass, userDetails.getPassword())) {
-            manager.changePassword(currentPass, encoder.encode(newPass));
 
-            // Обновление пароля в таблице "пользователи". Будет удалено после нормализации БД
-            // TODO: удалить после нормализации БД
-            UserEntity userEntity = userRepository.findByUsername(username);
-            userEntity.setPassword(encoder.encode(newPass));
-            userRepository.save(userEntity);
-
-            return true;
-        }
-        return false;
+        return manager.changePassword(username, newPassword);
     }
+
 
     /**
      * Метод получения информации об авторизованном пользователе
@@ -89,9 +69,7 @@ public class UserServiceImpl implements UserService {
      * Метод обновления информации об авторизованном пользователе
      *
      * @param updateUser - DTO c информацией о пользователе
-     *
      * @return UpdateUser - DTO c информацией о пользователе после обновления
-     *
      * @throws RuntimeException, если пользователь не найден
      */
     @Override
