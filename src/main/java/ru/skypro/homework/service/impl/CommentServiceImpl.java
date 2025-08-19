@@ -4,7 +4,6 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -30,20 +29,18 @@ import java.util.stream.Collectors;
 @Service
 public class CommentServiceImpl implements CommentService {
 
-    private static Integer counter = 30;
-
     private final CommentRepository commentRepository;
     private final AdRepository adRepository;
     private final CommentMapper commentMapper;
     private final UserRepository userRepository;
-    @Autowired
-    private SecurityUtils securityUtils;
+    private final SecurityUtils securityUtils;
 
-    public CommentServiceImpl(CommentRepository commentRepository, AdRepository adRepository, CommentMapper commentMapper, UserRepository userRepository) {
+    public CommentServiceImpl(CommentRepository commentRepository, AdRepository adRepository, CommentMapper commentMapper, UserRepository userRepository, SecurityUtils securityUtils) {
         this.commentRepository = commentRepository;
         this.adRepository = adRepository;
         this.commentMapper = commentMapper;
         this.userRepository = userRepository;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -66,6 +63,7 @@ public class CommentServiceImpl implements CommentService {
      * @param comment
      * @return
      */
+
     @Override
     public Comment addComment(Integer id, @NotNull CreateOrUpdateComment comment, @NotNull Authentication auth) {
 
@@ -81,12 +79,9 @@ public class CommentServiceImpl implements CommentService {
         entity.setAuthor(user);
         entity.setAd(adRepository.findById(id).orElseThrow(() -> new NoSuchElementException("объявление не найдено")));
 
-        //Временная заглушка
-        entity.setPk(counter++);
+        CommentEntity entity1 = commentRepository.save(entity);
 
-        commentRepository.save(entity);
-
-        return commentMapper.toDto(entity);
+        return commentMapper.toDto(entity1);
     }
 
     /**
@@ -101,6 +96,13 @@ public class CommentServiceImpl implements CommentService {
         CommentEntity comment = ad.getComments().stream()
                 .filter(c -> c.getPk().equals(commentId))
                 .findFirst().orElseThrow(() -> new NoSuchElementException("комментарий не найден"));
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (!currentUser.getRole().name().equals("ADMIN")) {
+            if (!(commentRepository.getReferenceById(commentId).getAuthor().getId()).equals(currentUser.getId())) {
+                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
+            }
+        }
         log.info("Удаляется комментарий id={}", comment.getPk());
         commentRepository.deleteByCommId(comment.getPk());
         return true;
@@ -112,17 +114,7 @@ public class CommentServiceImpl implements CommentService {
      * @param comment
      * @return
      */
-   /* @Override
-    public Comment updateComment(Integer adId, Integer commentId, @NotNull CreateOrUpdateComment comment) {
-        AdEntity ad = adRepository.findById(adId).orElseThrow(() -> new NoSuchElementException("объявление не найдено"));
-        CommentEntity comment1 = ad.getComments().stream()
-                .filter(c -> c.getPk().equals(commentId))
-                .findFirst().orElseThrow(() -> new NoSuchElementException("комментарий не найден"));
-        comment1.setText(comment.getText());
-        commentRepository.save(comment1);
-        return commentMapper.toDto(comment1);
-    }
-   */
+
     @Override
     public Comment updateComment(Integer adId, Integer commentId, @NotNull CreateOrUpdateComment comment) {
         AdEntity ad = adRepository.findById(adId)
@@ -135,13 +127,15 @@ public class CommentServiceImpl implements CommentService {
 
         User currentUser = securityUtils.getCurrentUser();
 
-        if (!(comment1.getAuthor().getId()).equals(currentUser.getId())) {
-            throw new AccessDeniedException("У вас нет прав на редактирование этого комментария");
+        if (!currentUser.getRole().name().equals("ADMIN")) {
+            log.info("не админ");
+            if (commentRepository.getReferenceById(commentId).getAuthor().getId() != currentUser.getId()) {
+                log.info("не автор");
+                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
+            }
         }
-
         comment1.setText(comment.getText());
         commentRepository.save(comment1);
         return commentMapper.toDto(comment1);
     }
-
 }
