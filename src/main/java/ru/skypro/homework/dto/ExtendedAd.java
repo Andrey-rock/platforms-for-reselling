@@ -22,6 +22,8 @@ public class ExtendedAd {
     private String authorFirstName;
     @Schema(description = "фамилия автора объявления")
     private String authorLastName;
+    @Schema(description = "описание объявления")
+    private String  description;
     @Schema(description = "логин автора объявления")
     private String email;
     @Schema(description = "ссылка на картинку объявления")
