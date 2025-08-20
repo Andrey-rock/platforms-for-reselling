@@ -64,7 +64,7 @@ public class AdServiceImpl implements AdService {
      * Метод для добавления новых объявлений
      *
      * @param properties - DTO модель класса CreateOrUpdate.
-     * @param image - изображение в формате PNG, JPEG, GIF или TIFF.
+     * @param image      - изображение в формате PNG, JPEG, GIF или TIFF.
      * @return возвращает объявление в качестве DTO модели
      */
     @Override
@@ -72,7 +72,8 @@ public class AdServiceImpl implements AdService {
                         @NotNull Authentication authentication) throws IOException {
         logger.info("Method for Create new Ad");
 
-        UserEntity user = userRepository.findByUsername(authentication.getName().describeConstable().orElseThrow(()->new UsernameNotFoundException(authentication.getName())));
+        UserEntity user = userRepository.findByUsername(authentication.getName().describeConstable()
+                .orElseThrow(() -> new UsernameNotFoundException(authentication.getName())));
         AdEntity adEntity = new AdEntity();
 
         adEntity.setTitle(properties.getTitle());
@@ -82,11 +83,13 @@ public class AdServiceImpl implements AdService {
         adEntity.setImage("/images/" + imageService.uploadImage(image));
         adRepository.save(adEntity);
 
+        logger.info("Ad created");
+
         return adMapper.toDto(adEntity);
     }
 
     /**
-     *Метод для получения информации по объявлению
+     * Метод для получения информации по объявлению
      *
      * @param id - ID объявления
      * @return возвращает DTO объявления полученного по его Id
@@ -94,17 +97,20 @@ public class AdServiceImpl implements AdService {
     @Override
     public ExtendedAd getInfoAboutAd(Integer id) {
         logger.info("Method for get Information about Ad");
-        AdEntity adEntity = adRepository.findById(id).orElseThrow(()->new AdNotFoundException("Объявление не найдено"));
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         return adMapper.toExtendedDto(adEntity);
     }
 
     /**
-     *Метод удаления объявления
+     * Метод удаления объявления
      *
      * @param id - ID объявления
      */
     @Override
     public void deleteAd(Integer id) {
+
+        logger.info("Method for Delete Ad with id: {}", id);
+
         User currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().name().equals("ADMIN")) {
@@ -112,12 +118,12 @@ public class AdServiceImpl implements AdService {
                 throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
             }
         }
-        logger.info("Method for Deleting Ad");
         adRepository.deleteById(id);
+        logger.info("Ad delete");
     }
 
     /**
-     *Метод обновления информации объявления
+     * Метод обновления информации объявления
      *
      * @param id - ID объявления
      * @param ad - DTO класса CreateOrUpdate
@@ -125,6 +131,9 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad) {
+
+        logger.info("Method for Edite Info about Ad with id: {}", id);
+
         User currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().name().equals("ADMIN")) {
@@ -132,18 +141,19 @@ public class AdServiceImpl implements AdService {
                 throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
             }
         }
-        logger.info("Method for Edite Info about Ad");
-        AdEntity adEntity = adRepository.findById(id).orElseThrow(()->new AdNotFoundException("Объявление не найдено"));
+
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         adEntity.setTitle(ad.getTitle());
         adEntity.setPrice(ad.getPrice());
         adEntity.setDescription(ad.getDescription());
 
         adRepository.save(adEntity);
+        logger.info("Ad edit");
         return adMapper.toDtoAd(adEntity);
     }
 
     /**
-     *Метод для получения объявлений авторизованного пользователя
+     * Метод для получения объявлений авторизованного пользователя
      *
      * @param userName - логин пользователя
      * @return возвращать список объявлений пользователя
@@ -159,9 +169,9 @@ public class AdServiceImpl implements AdService {
     }
 
     /**
-     *Метод для обновления изображения объявления
+     * Метод для обновления изображения объявления
      *
-     * @param id - ID объявления
+     * @param id        - ID объявления
      * @param imageFile - изображение в формате PNG, JPEG, GIF или TIFF.
      * @return boolean
      */
@@ -169,7 +179,7 @@ public class AdServiceImpl implements AdService {
     public boolean renewImageAd(Integer id, MultipartFile imageFile) throws IOException {
         logger.info("Method for Renew image of Ad's");
 
-        AdEntity adEntity = adRepository.findById(id).orElseThrow(()->new AdNotFoundException("Объявление не найдено"));
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
 
         adEntity.setImage("/images/" + imageService.uploadImage(imageFile));
 

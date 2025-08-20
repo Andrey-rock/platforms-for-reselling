@@ -4,8 +4,6 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -17,6 +15,8 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.AdEntity;
 import ru.skypro.homework.entity.CommentEntity;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.AdNotFoundException;
+import ru.skypro.homework.exceptions.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.CommentRepository;
@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class CommentServiceImpl implements CommentService {
-
-    Logger logger = LoggerFactory.getLogger(CommentServiceImpl.class);
 
     private final CommentRepository commentRepository;
     private final AdRepository adRepository;
@@ -56,9 +54,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comments getComments(Integer id) {
 
-        logger.info("Method for get Comments");
+        log.info("Method for get Comments started with id {}", id);
 
-        List<Comment> comments = adRepository.findById(id).orElseThrow(() -> new NoSuchElementException("объявление не найдено"))
+        List<Comment> comments = adRepository.findById(id).orElseThrow(AdNotFoundException::new)
                 .getComments()
                 .stream()
                 .map(commentMapper::toDto)
@@ -69,7 +67,7 @@ public class CommentServiceImpl implements CommentService {
     /**
      * Метод для добавления нового комментария
      *
-     * @param id - Id объявления
+     * @param id      - Id объявления
      * @param comment - DTO для добавления или обновления комментария.
      * @return возвращает добавленный комментарий
      */
@@ -77,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment addComment(Integer id, @NotNull CreateOrUpdateComment comment, @NotNull Authentication auth) {
 
-        logger.info("Method for add new Comment");
+        log.info("Method for add new Comment started with id {}", id);
 
         UserEntity user = userRepository.findByUsername(auth.getName());
         Comment comment1 = new Comment();
@@ -89,9 +87,10 @@ public class CommentServiceImpl implements CommentService {
 
         CommentEntity entity = commentMapper.toEntity(comment1);
         entity.setAuthor(user);
-        entity.setAd(adRepository.findById(id).orElseThrow(() -> new NoSuchElementException("объявление не найдено")));
+        entity.setAd(adRepository.findById(id).orElseThrow(AdNotFoundException::new));
 
         CommentEntity entity1 = commentRepository.save(entity);
+        log.info("Comment added");
 
         return commentMapper.toDto(entity1);
     }
@@ -99,7 +98,7 @@ public class CommentServiceImpl implements CommentService {
     /**
      * Метод для удаления комментария
      *
-     * @param adId - Id объявления
+     * @param adId      - Id объявления
      * @param commentId -Id комментария
      * @return boolean
      */
@@ -107,57 +106,62 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public boolean deleteComment(Integer adId, Integer commentId) {
 
-        logger.info("Method for delete Comment");
+        log.info("Method for delete Comment started with adId {} end commentId {}", adId, commentId);
 
-        AdEntity ad = adRepository.findById(adId).orElseThrow(() -> new NoSuchElementException("объявление не найдено"));
-        CommentEntity comment = ad.getComments().stream()
-                .filter(c -> c.getPk().equals(commentId))
-                .findFirst().orElseThrow(() -> new NoSuchElementException("комментарий не найден"));
-        User currentUser = securityUtils.getCurrentUser();
+        CommentEntity comment = commentSearch(adId, commentId);
 
-        if (!currentUser.getRole().name().equals("ADMIN")) {
-            if (!(commentRepository.getReferenceById(commentId).getAuthor().getId()).equals(currentUser.getId())) {
-                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
-            }
-        }
-        log.info("Удаляется комментарий id={}", comment.getPk());
+        rightsVerification(commentId);
+
         commentRepository.deleteByCommId(comment.getPk());
+        log.info("Comment deleted");
         return true;
     }
 
     /**
      * Метод для обновления комментария
      *
-     * @param adId - Id объявления
+     * @param adId      - Id объявления
      * @param commentId - Id комментария
-     * @param comment - DTO для добавления или обновления комментария.
+     * @param comment   - DTO для добавления или обновления комментария.
      * @return возвращает сохраненный комментарий
      */
-
     @Override
     public Comment updateComment(Integer adId, Integer commentId, @NotNull CreateOrUpdateComment comment) {
 
-        logger.info("Method for update Comment");
+        log.info("Method for update Comment started with adId {} end commentId {}", adId, commentId);
 
+        CommentEntity comment1 = commentSearch(adId, commentId);
+
+        rightsVerification(commentId);
+
+        comment1.setText(comment.getText());
+        commentRepository.save(comment1);
+        log.info("Comment update");
+        return commentMapper.toDto(comment1);
+    }
+
+    private CommentEntity commentSearch(Integer adId, Integer commentId) {
         AdEntity ad = adRepository.findById(adId)
-                .orElseThrow(() -> new NoSuchElementException("объявление не найдено"));
+                .orElseThrow(AdNotFoundException::new);
+        log.debug("Ad found: {}", ad);
 
-        CommentEntity comment1 = ad.getComments().stream()
+        CommentEntity comment = ad.getComments().stream()
                 .filter(c -> c.getPk().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("комментарий не найден"));
+                .orElseThrow(CommentNotFoundException::new);
+        log.debug("Comment found {}", comment);
+        return comment;
+    }
 
+    private void rightsVerification(int commentId) {
         User currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().name().equals("ADMIN")) {
-            log.info("не админ");
+            log.debug("Not admin");
             if (commentRepository.getReferenceById(commentId).getAuthor().getId() != currentUser.getId()) {
-                log.info("не автор");
+                log.debug("Not author");
                 throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
             }
         }
-        comment1.setText(comment.getText());
-        commentRepository.save(comment1);
-        return commentMapper.toDto(comment1);
     }
 }

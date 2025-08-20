@@ -1,8 +1,8 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,11 +17,18 @@ import ru.skypro.homework.mapper.UserMapper;
 
 import ru.skypro.homework.service.AuthService;
 
+/**
+ * Сервис аутентификации и регистрации.
+ *
+ * @author Andrei Bronskii, 2025
+ * @author Lada Kozlova, 2025
+ * @author AlanaSR, 2025
+ * @version 0.0.1
+ */
+
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
-
-    Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
-
 
     private final MyUserDetailsServiceImpl manager;
     private final PasswordEncoder encoder;
@@ -37,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     *Метод для авторизации пользователя
+     * Метод для авторизации пользователя
      *
      * @param userName - логин пользователя
      * @param password - пароль пользователя
@@ -45,31 +52,37 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public boolean login(String userName, String password) {
-        logger.info("Method of the login user's");
+        log.info("Method of the login user's start");
         if (!manager.userExists(userName)) {
-            return false;
+            log.info("User {} does not exist", userName);
+            throw new UserAlreadyExistException(userName);
         }
         UserDetails userDetails = manager.loadUserByUsername(userName);
-        if (!encoder.matches(password, userDetails.getPassword())){
+        if (!encoder.matches(password, userDetails.getPassword())) {
+            log.info("User {} does not match password", userName);
             throw new WrongPasswordException("Неверный пароль");
         }
+        log.info("User {} successfully logged in", userName);
         return true;
     }
 
     /**
-     *Метод для регистрации нового пользователя
+     * Метод для регистрации нового пользователя
+     *
      * @param register - DTO для регистрации пользователя
      * @return boolean
      */
     @Override
     public boolean register(@NotNull Register register) {
-        logger.info("Method of the register user's");
+        log.info("Method of the register user's start");
         if (manager.userExists(register.getUsername())) {
+            log.info("User {} already exists", register.getUsername());
             throw new UserAlreadyExistException("Пользователь уже существует");
         }
         UserEntity userEntity = userMapper.entityFromRegister(register);
         userEntity.setPassword(encoder.encode(register.getPassword()));
         manager.createUser(userEntity);
+        log.info("User {} successfully registered", register.getUsername());
         return true;
     }
 }
