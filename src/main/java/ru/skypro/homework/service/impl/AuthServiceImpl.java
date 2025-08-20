@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Register;
 
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.UserAlreadyExistException;
+import ru.skypro.homework.exceptions.WrongPasswordException;
 import ru.skypro.homework.mapper.UserMapper;
 
 import ru.skypro.homework.service.AuthService;
@@ -48,7 +50,10 @@ public class AuthServiceImpl implements AuthService {
             return false;
         }
         UserDetails userDetails = manager.loadUserByUsername(userName);
-        return encoder.matches(password, userDetails.getPassword());
+        if (!encoder.matches(password, userDetails.getPassword())){
+            throw new WrongPasswordException("Неверный пароль");
+        }
+        return true;
     }
 
     /**
@@ -60,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
     public boolean register(@NotNull Register register) {
         logger.info("Method of the register user's");
         if (manager.userExists(register.getUsername())) {
-            return false;
+            throw new UserAlreadyExistException("Пользователь уже существует");
         }
         UserEntity userEntity = userMapper.entityFromRegister(register);
         userEntity.setPassword(encoder.encode(register.getPassword()));

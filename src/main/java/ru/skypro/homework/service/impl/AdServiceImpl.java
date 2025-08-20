@@ -4,6 +4,7 @@ package ru.skypro.homework.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -11,6 +12,7 @@ import ru.skypro.homework.entity.AdEntity;
 import org.springframework.security.core.Authentication;
 
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
@@ -69,7 +71,7 @@ public class AdServiceImpl implements AdService {
                         Authentication authentication) throws IOException {
         logger.info("Method for Create new Ad");
 
-        UserEntity user = userRepository.findByUsername(authentication.getName());
+        UserEntity user = userRepository.findByUsername(authentication.getName().describeConstable().orElseThrow(()->new UsernameNotFoundException(authentication.getName())));
         AdEntity adEntity = new AdEntity();
 
         adEntity.setTitle(properties.getTitle());
@@ -91,7 +93,7 @@ public class AdServiceImpl implements AdService {
     @Override
     public ExtendedAd getInfoAboutAd(Integer id) {
         logger.info("Method for get Information about Ad");
-        AdEntity adEntity = adRepository.findById(id).get();
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(()->new AdNotFoundException("Объявление не найдено"));
         return adMapper.toExtendedDto(adEntity);
     }
 
@@ -130,7 +132,7 @@ public class AdServiceImpl implements AdService {
             }
         }
         logger.info("Method for Edite Info about Ad");
-        AdEntity adEntity = adRepository.findById(id).get();
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(()->new AdNotFoundException("Объявление не найдено"));
         adEntity.setTitle(ad.getTitle());
         adEntity.setPrice(ad.getPrice());
         adEntity.setDescription(ad.getDescription());
@@ -166,7 +168,7 @@ public class AdServiceImpl implements AdService {
     public boolean renewImageAd(Integer id, MultipartFile imageFile) throws IOException {
         logger.info("Method for Renew image of Ad's");
 
-        AdEntity adEntity = adRepository.findById(id).get();
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(()->new AdNotFoundException("Объявление не найдено"));
 
         adEntity.setImage("/images/" + imageService.uploadImage(imageFile));
 
