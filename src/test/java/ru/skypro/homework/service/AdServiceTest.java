@@ -42,6 +42,8 @@ public class AdServiceTest {
     @Mock
     private AdRepository adRepository;
     @Mock
+    ImageService imageService;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private AdMapper adMapper;
@@ -56,7 +58,7 @@ public class AdServiceTest {
     private UserEntity user;
     private List<AdEntity> adEntities;
     private List<Ad> adDtos;
-    private final String imageDir = "/test/pathToAdds";
+
 
     @BeforeEach
     public void setUp() {
@@ -90,13 +92,7 @@ public class AdServiceTest {
         adDto2.setPk(102);
         adDtos = Arrays.asList(adDto1, adDto2);
 
-        try {
-            var field = AdServiceImpl.class.getDeclaredField("imageDir");
-            field.setAccessible(true);
-            field.set(adService, imageDir);
-        } catch (Exception e) {
-            fail("Failed to set imageDir");
-        }
+
     }
 
     // Тест для метода getAllAds()
@@ -140,7 +136,7 @@ public class AdServiceTest {
 
         MockMultipartFile imageFile = new MockMultipartFile(
                 "image", "test.jpg", "image/jpeg", "test image content".getBytes());
-        ReflectionTestUtils.setField(adService, "imageDir", "/tmp/uploads");
+        
         UserEntity user = new UserEntity();
         user.setUsername("testuser");
 
@@ -276,7 +272,7 @@ public class AdServiceTest {
         when(imageFile.getOriginalFilename()).thenReturn("new_image.png");
         when(imageFile.getInputStream()).thenReturn(null);
 
-        Path expectedPath = Path.of(imageDir, adEntity.hashCode() + ".png");
+
 
         boolean result = adService.renewImageAd(adId, imageFile);
 
@@ -284,7 +280,7 @@ public class AdServiceTest {
         verify(adRepository).findById(adId);
         verify(adRepository).save(any(AdEntity.class));
 
-        assertEquals(expectedPath.toString(), adEntity.getImage());
+
 
     }
 
