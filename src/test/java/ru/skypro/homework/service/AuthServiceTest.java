@@ -3,22 +3,17 @@ package ru.skypro.homework.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 
 import ru.skypro.homework.dto.Register;
-import ru.skypro.homework.entity.SecurityUser;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.UserMapper;
-import ru.skypro.homework.mapper.UserMapperImpl;
 import ru.skypro.homework.repository.UserRepository;
-import ru.skypro.homework.service.AuthService;
 import ru.skypro.homework.service.impl.AuthServiceImpl;
 import ru.skypro.homework.service.impl.MyUserDetailsServiceImpl;
 
@@ -32,7 +27,7 @@ public class AuthServiceTest {
 
     private MyUserDetailsServiceImpl manager;
     private PasswordEncoder encoder;
-    private UserMapperImpl userMapperImpl;
+    private UserMapper userMapper;
     private UserRepository userRepository;
 
     private AuthService authService;
@@ -41,10 +36,10 @@ public class AuthServiceTest {
     void setUp() {
         manager = mock(MyUserDetailsServiceImpl.class);
         encoder = mock(PasswordEncoder.class);
-        userMapperImpl = mock(UserMapperImpl.class);
+        userMapper = mock(UserMapper.class);
         userRepository = mock(UserRepository.class);
 
-        authService = new AuthServiceImpl(manager, encoder, userMapperImpl);
+        authService = new AuthServiceImpl(manager, encoder, userMapper);
     }
 
     // Тестирование метода login. Успешный вход
@@ -111,7 +106,7 @@ public class AuthServiceTest {
         userEntity.setPassword("somePassword");
 
         when(manager.userExists(register.getUsername())).thenReturn(false);
-        when(userMapperImpl.entityFromRegister(register)).thenReturn(userEntity);
+        when(userMapper.entityFromRegister(register)).thenReturn(userEntity);
 
         when(encoder.encode(register.getPassword())).thenReturn("encodedPass");
 
@@ -146,6 +141,6 @@ public class AuthServiceTest {
         assertFalse(result);
 
         verify(manager).userExists(register.getUsername());
-        verifyNoMoreInteractions(userMapperImpl, encoder, manager, userRepository);
+        verifyNoMoreInteractions(userMapper, encoder, manager, userRepository);
     }
 }

@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,8 @@ import ru.skypro.homework.service.CommentService;
 @RequestMapping("/ads")
 public class CommentController {
 
+    Logger logger = LoggerFactory.getLogger(CommentController.class);
+
     private final CommentService commentService;
 
     public CommentController(CommentService commentService) {
@@ -42,6 +46,9 @@ public class CommentController {
     })
     @GetMapping("/{id}/comments")
     public ResponseEntity<Comments> getComments(@PathVariable("id") Integer id) {
+
+        logger.info("Controller method's for getting all ad's comments");
+
         Comments comments = commentService.getComments(id);
         return ResponseEntity.ok(comments);
     }
@@ -59,6 +66,9 @@ public class CommentController {
     public ResponseEntity<Comment> addComment(@PathVariable("id") Integer id,
                                               @RequestBody CreateOrUpdateComment newComment,
                                               Authentication authentication) {
+
+        logger.info("Controller method's for add new comment");
+
         Comment comment = commentService.addComment(id, newComment, authentication);
         return ResponseEntity.ok(comment);
     }
@@ -76,6 +86,9 @@ public class CommentController {
     @DeleteMapping("/{adId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Integer adId,
                                               @PathVariable("commentId") Integer commentId) {
+
+        logger.info("Controller method's for deleting comment");
+
         commentService.deleteComment(adId, commentId);
         return ResponseEntity.ok().build();
     }
@@ -94,6 +107,9 @@ public class CommentController {
     public ResponseEntity<CreateOrUpdateComment> updateComment(@PathVariable("adId") Integer adId,
                                                                @PathVariable("commentId") Integer commentId,
                                                                @RequestBody CreateOrUpdateComment updatedComment) {
+
+        logger.info("Controller method's for updating comment");
+
         commentService.updateComment(adId, commentId, updatedComment);
         return ResponseEntity.ok(updatedComment);
     }

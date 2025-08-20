@@ -43,6 +43,11 @@ public class AdServiceImpl implements AdService {
         this.securityUtils = securityUtils;
     }
 
+    /**
+     * Метод  получения всех объявлений
+     *
+     * @return список объявлений
+     */
     @Override
     public Ads getAllAds() {
         logger.info("Method for find All ads");
@@ -52,6 +57,13 @@ public class AdServiceImpl implements AdService {
         return new Ads(ads.size(), ads);
     }
 
+    /**
+     * Метод для добавления новых объявлений
+     *
+     * @param properties - DTO модель класса CreateOrUpdate.
+     * @param image - изображение в формате PNG, JPEG, GIF или TIFF.
+     * @return возвращает объявлеие в качестве DTO модели
+     */
     @Override
     public Ad addNewAds(CreateOrUpdateAd properties, MultipartFile image,
                         Authentication authentication) throws IOException {
@@ -70,6 +82,12 @@ public class AdServiceImpl implements AdService {
         return adMapper.toDto(adEntity);
     }
 
+    /**
+     *Метод для получения информации по объявлению
+     *
+     * @param id - ID объявления
+     * @return возвращает DTO объявления полученного по его Id
+     */
     @Override
     public ExtendedAd getInfoAboutAd(Integer id) {
         logger.info("Method for get Information about Ad");
@@ -77,6 +95,11 @@ public class AdServiceImpl implements AdService {
         return adMapper.toExtendedDto(adEntity);
     }
 
+    /**
+     *Метод удаления объявления
+     *
+     * @param id - ID объявления
+     */
     @Override
     public void deleteAd(Integer id) {
         User currentUser = securityUtils.getCurrentUser();
@@ -90,6 +113,13 @@ public class AdServiceImpl implements AdService {
         adRepository.deleteById(id);
     }
 
+    /**
+     *Метод обновления информации объявления
+     *
+     * @param id - ID объявления
+     * @param ad - DTO класса CreateOrUpdate
+     * @return возвращает обновленное DTO объявления
+     */
     @Override
     public CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad) {
         User currentUser = securityUtils.getCurrentUser();
@@ -109,6 +139,12 @@ public class AdServiceImpl implements AdService {
         return adMapper.toDtoAd(adEntity);
     }
 
+    /**
+     *Метод для получения объявлений авторизованного пользователя
+     *
+     * @param userName - логин пользователя
+     * @return возвращет список объявлений пользователя
+     */
     @Override
     public Ads receiveAdsAuthorizeUser(String userName) {
         logger.info("Method for Receive ads authorize User");
@@ -119,6 +155,13 @@ public class AdServiceImpl implements AdService {
         return new Ads(ads.size(), ads);
     }
 
+    /**
+     *Метод для обновления изображения объявления
+     *
+     * @param id - ID объявления
+     * @param imageFile - изображение в формате PNG, JPEG, GIF или TIFF.
+     * @return boolean
+     */
     @Override
     public boolean renewImageAd(Integer id, MultipartFile imageFile) throws IOException {
         logger.info("Method for Renew image of Ad's");

@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ import java.io.IOException;
 @RequestMapping("/ads")
 public class AdController {
 
+    Logger logger = LoggerFactory.getLogger(AdController.class);
 
     private final AdService adService;
 
@@ -48,6 +51,9 @@ public class AdController {
     })
     @GetMapping
     public Ads getAllAds() {
+
+        logger.info("Controller method's for getting all ads");
+
         return adService.getAllAds();
     }
 
@@ -63,6 +69,9 @@ public class AdController {
     public Ad addNewAds(@RequestPart("properties") CreateOrUpdateAd properties,
                         @RequestPart("image") MultipartFile image,
                         Authentication authentication) throws IOException {
+
+        logger.info("Controller method's for add new ad");
+
         return adService.addNewAds(properties, image, authentication);
     }
 
@@ -77,6 +86,9 @@ public class AdController {
     })
     @GetMapping("{id}")
     public ExtendedAd getInfoAboutAd(@PathVariable Integer id) {
+
+        logger.info("Controller method's for getting information about ad");
+
         return adService.getInfoAboutAd(id);
     }
 
@@ -93,6 +105,9 @@ public class AdController {
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAd(@PathVariable int id) {
+
+        logger.info("Controller method's for deleting ads");
+
         adService.deleteAd(id);
     }
 
@@ -108,6 +123,9 @@ public class AdController {
     })
     @PatchMapping("{id}")
     public CreateOrUpdateAd editInfoAboutAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
+
+        logger.info("Controller method's for updating ad's information");
+
         return adService.editInfoAboutAd(id, ad);
     }
 
@@ -121,10 +139,9 @@ public class AdController {
     })
     @GetMapping("/me")
     public Ads receiveAdsAuthorizeUser(Authentication authentication) {
-//        return adService.receiveAdsAuthorizeUser();
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//        Ads ads = adService.getAdsForUser(userDetails.getUsername());
+
+        logger.info("Controller method's for getting authorising user's ads");
+
         return adService.receiveAdsAuthorizeUser(authentication.getName());
     }
 
@@ -141,7 +158,9 @@ public class AdController {
     @PatchMapping(value = "{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public boolean renewImageAd(@PathVariable int id,
                                 @RequestParam("image") MultipartFile imageFile) throws IOException {
-//        adService.renewPhoto(id, photo);
+
+        logger.info("Controller method's for updating ad's photo");
+
         return adService.renewImageAd(id, imageFile);
     }
 }
