@@ -8,12 +8,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.Ad;
-import ru.skypro.homework.dto.Ads;
-import ru.skypro.homework.dto.CreateOrUpdateAd;
-import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.AdMapper;
@@ -22,7 +18,6 @@ import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -49,6 +44,9 @@ public class AdServiceTest {
     private AdMapper adMapper;
     @Mock
     private MultipartFile imageFile;
+    @Mock
+    private SecurityUtils securityUtils;
+
     @InjectMocks
     private AdServiceImpl adService;
 
@@ -57,7 +55,6 @@ public class AdServiceTest {
     private CreateOrUpdateAd createOrUpdateAd;
     private UserEntity user;
     private List<AdEntity> adEntities;
-    private List<Ad> adDtos;
 
 
     @BeforeEach
@@ -90,9 +87,6 @@ public class AdServiceTest {
         adDto1.setPk(101);
         Ad adDto2 = new Ad();
         adDto2.setPk(102);
-        adDtos = Arrays.asList(adDto1, adDto2);
-
-
     }
 
     // Тест для метода getAllAds()
@@ -136,7 +130,7 @@ public class AdServiceTest {
 
         MockMultipartFile imageFile = new MockMultipartFile(
                 "image", "test.jpg", "image/jpeg", "test image content".getBytes());
-        
+
         UserEntity user = new UserEntity();
         user.setUsername("testuser");
 
@@ -187,22 +181,44 @@ public class AdServiceTest {
     public void testGetInfoAboutAdAdNotFound() {
         when(adRepository.findById(2)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> {
-            adService.getInfoAboutAd(2);
-        });
+        assertThrows(NoSuchElementException.class, () -> adService.getInfoAboutAd(2));
         verify(adRepository).findById(2);
     }
 
     // Тест для метода deleteAd
     @Test
     public void testDeleteAd() {
-        adService.deleteAd(1);
-        verify(adRepository).deleteById(1);
+
+        Integer adId = 2;
+
+        user.setRole(Role.USER);
+
+        User user1 = new User();
+        user1.setId(1);
+        user1.setEmail(user.getUsername());
+        user1.setRole(user.getRole());
+
+        adEntity.setAuthor(user);
+
+        when(securityUtils.getCurrentUser()).thenReturn(user1);
+        when(adRepository.getReferenceById(adId)).thenReturn(adEntity);
+
+        adService.deleteAd(adId);
+        verify(adRepository).deleteById(adId);
     }
 
     // Тест для метода editInfoAboutAd. Успешное редактирование
     @Test
     public void testEditInfoAboutAdSuccess() {
+        user.setRole(Role.USER);
+        User user1 = new User();
+        user1.setId(1);
+        user1.setEmail(user.getUsername());
+        user1.setRole(user.getRole());
+        adEntity.setAuthor(user);
+
+        when(securityUtils.getCurrentUser()).thenReturn(user1);
+        when(adRepository.getReferenceById(adEntity.getPk())).thenReturn(adEntity);
         when(adRepository.findById(1)).thenReturn(java.util.Optional.of(adEntity));
         when(adRepository.save(any(AdEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         CreateOrUpdateAd updatedDto = new CreateOrUpdateAd();
@@ -223,12 +239,19 @@ public class AdServiceTest {
     // Тест для метода editInfoAboutAd. Случай когда объявление не найдено
     @Test
     public void testEditInfoAboutAdAdNotFound() {
+
+        user.setRole(Role.USER);
+        User user1 = new User();
+        user1.setId(user.getId());
+        user1.setEmail(user.getUsername());
+        user1.setRole(user.getRole());
+        adEntity.setAuthor(user);
+
+        when(securityUtils.getCurrentUser()).thenReturn(user1);
+        when(adRepository.getReferenceById(any(Integer.class))).thenReturn(adEntity);
         when(adRepository.findById(2)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> {
-            adService.editInfoAboutAd(2, createOrUpdateAd);
-        });
-
+        assertThrows(NoSuchElementException.class, () -> adService.editInfoAboutAd(2, createOrUpdateAd));
         verify(adRepository).findById(2);
     }
 
@@ -272,15 +295,11 @@ public class AdServiceTest {
         when(imageFile.getOriginalFilename()).thenReturn("new_image.png");
         when(imageFile.getInputStream()).thenReturn(null);
 
-
-
         boolean result = adService.renewImageAd(adId, imageFile);
 
         assertTrue(result);
         verify(adRepository).findById(adId);
         verify(adRepository).save(any(AdEntity.class));
-
-
 
     }
 
@@ -291,9 +310,7 @@ public class AdServiceTest {
 
         when(adRepository.findById(adPk)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> {
-            adService.renewImageAd(adPk, imageFile);
-        });
+        assertThrows(NoSuchElementException.class, () -> adService.renewImageAd(adPk, imageFile));
 
         verify(adRepository).findById(adPk);
     }
