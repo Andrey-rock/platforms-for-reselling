@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
@@ -20,7 +21,6 @@ import ru.skypro.homework.service.impl.AdServiceImpl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -181,7 +181,7 @@ public class AdServiceTest {
     public void testGetInfoAboutAdAdNotFound() {
         when(adRepository.findById(2)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> adService.getInfoAboutAd(2));
+        assertThrows(AdNotFoundException.class, () -> adService.getInfoAboutAd(2));
         verify(adRepository).findById(2);
     }
 
@@ -251,7 +251,7 @@ public class AdServiceTest {
         when(adRepository.getReferenceById(any(Integer.class))).thenReturn(adEntity);
         when(adRepository.findById(2)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> adService.editInfoAboutAd(2, createOrUpdateAd));
+        assertThrows(AdNotFoundException.class, () -> adService.editInfoAboutAd(2, createOrUpdateAd));
         verify(adRepository).findById(2);
     }
 
@@ -310,7 +310,7 @@ public class AdServiceTest {
 
         when(adRepository.findById(adPk)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> adService.renewImageAd(adPk, imageFile));
+        assertThrows(AdNotFoundException.class, () -> adService.renewImageAd(adPk, imageFile));
 
         verify(adRepository).findById(adPk);
     }

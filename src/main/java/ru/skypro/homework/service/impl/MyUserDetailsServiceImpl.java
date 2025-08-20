@@ -44,7 +44,7 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     }
 
     /**
-     *Метод для проверки существования польователя
+     *Метод для проверки существования пользователя
      *
      * @param userName - логин пользователя
      * @return boolean
@@ -57,7 +57,7 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     }
 
     /**
-     * Метод для создания нового пользвоателя
+     * Метод для создания нового пользователя
      *
      * @param userEntity - Entity для пользователей.
      */
