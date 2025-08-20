@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
@@ -20,6 +21,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 /**
  * Тестирование CommentService
  *
@@ -33,14 +35,13 @@ class CommentServiceTest {
 
     @Mock
     private AdRepository adRepository;
-    @Mock
-    private AdEntity adEntity;
 
     @Mock
     private CommentMapper commentMapper;
 
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private SecurityUtils securityUtils;
 
@@ -93,9 +94,7 @@ class CommentServiceTest {
 
         when(adRepository.findById(adId)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> {
-            commentService.getComments(adId);
-        });
+        assertThrows(NoSuchElementException.class, () -> commentService.getComments(adId));
 
         verify(adRepository).findById(adId);
     }
@@ -104,40 +103,54 @@ class CommentServiceTest {
     @Test
     void testAddCommentSuccess() {
         Integer adId = 1;
+        int commentId = 2;
+        int authorId = 3;
         String username = "testUser";
+        String text = "First comment";
+        long timestamp = System.currentTimeMillis();
 
-        Authentication auth = mock(Authentication.class);
-        when(auth.getName()).thenReturn(username);
+        Authentication auth = new UsernamePasswordAuthenticationToken(username, "password");
 
         UserEntity user = new UserEntity();
-        user.setId(777);
-        user.setFirstName("FirstName");
-        user.setImage("imageUrl");
+        user.setUsername(username);
+        user.setId(authorId);
+        user.setPassword("password");
+        user.setFirstName("Name");
+        user.setImage("image");
 
-        when(userRepository.findByUsername(username)).thenReturn(user);
-
-        CreateOrUpdateComment createComment = new CreateOrUpdateComment();
-        createComment.setText("Test comment");
-
-        Comment commentDto = new Comment();
+        Comment comment = new Comment();
+        comment.setPk(commentId);
+        comment.setText(text);
+        comment.setCreatedAt(timestamp);
+        comment.setAuthor(authorId);
+        comment.setAuthorFirstName("Name");
+        comment.setAuthorImage("image");
 
         CommentEntity commentEntity = new CommentEntity();
-
-        when(commentMapper.toEntity(any(Comment.class))).thenReturn(commentEntity);
+        commentEntity.setPk(commentId);
+        commentEntity.setText(text);
+        commentEntity.setCreatedAt(timestamp);
+        commentEntity.setAuthor(user);
 
         AdEntity ad = new AdEntity();
         ad.setPk(adId);
+        ad.setComments(List.of(commentEntity));
 
+        CreateOrUpdateComment createComment = new CreateOrUpdateComment();
+        createComment.setText(text);
+
+        when(userRepository.findByUsername(username)).thenReturn(user);
         when(adRepository.findById(adId)).thenReturn(Optional.of(ad));
-
-        when(commentRepository.save(any(CommentEntity.class))).thenReturn(new CommentEntity());
+        when(commentMapper.toDto(any(CommentEntity.class))).thenReturn(comment);
+        when(commentMapper.toEntity(any(Comment.class))).thenReturn(commentEntity);
+        when(commentRepository.save(commentEntity)).thenReturn(commentEntity);
 
         Comment result = commentService.addComment(adId, createComment, auth);
 
         assertNotNull(result);
-        assertEquals("Test comment", result.getText());
+        assertEquals(text, result.getText());
 
-        verify(commentRepository).save(any(CommentEntity.class));
+        verify(commentRepository).save(commentEntity);
     }
 
     // Тест для метода addComment(). Для отсутствующего объявления
@@ -172,26 +185,45 @@ class CommentServiceTest {
     // Тест для метода deleteComment(). Для существующего комментария
     @Test
     void testDeleteCommentSuccess() {
+
         Integer adId = 1;
         Integer commentId = 5;
+
+        UserEntity user1 = new UserEntity();
+        user1.setId(10);
+        user1.setFirstName("FirstName");
+        user1.setImage("imageUrl");
+        user1.setRole(Role.USER);
+        user1.setUsername("test");
+
+        User user = new User();
+        user.setId(10);
+        user.setFirstName("FirstName");
+        user.setImage("imageUrl");
+        user.setRole(Role.USER);
+        user.setEmail("test");
+
 
         CommentEntity comment = new CommentEntity();
         comment.setPk(commentId);
         comment.setText("Test comment");
+        comment.setAuthor(user1);
 
         AdEntity ad = new AdEntity();
         ad.setPk(adId);
-        ad.setComments(new ArrayList<>(Arrays.asList(comment)));
+        ad.setComments(new ArrayList<>(List.of(comment)));
 
         when(adRepository.findById(adId)).thenReturn(Optional.of(ad));
+        when(securityUtils.getCurrentUser()).thenReturn(user);
+        when(commentRepository.getReferenceById(any(Integer.class))).thenReturn(comment);
 
-        doNothing().when(commentRepository).deleteById(commentId);
+        doNothing().when(commentRepository).deleteByCommId(commentId);
 
         boolean result = commentService.deleteComment(adId, commentId);
 
         assertTrue(result);
 
-        verify(commentRepository).deleteById(commentId);
+        verify(commentRepository).deleteByCommId(commentId);
     }
 
     // Тест для метода deleteComment(). Для отсутствующего комментария
@@ -206,7 +238,7 @@ class CommentServiceTest {
 
         AdEntity ad = new AdEntity();
         ad.setPk(adId);
-        ad.setComments(new ArrayList<>(Arrays.asList(comment)));
+        ad.setComments(new ArrayList<>(List.of(comment)));
 
         when(adRepository.findById(adId)).thenReturn(Optional.of(ad));
 
@@ -230,9 +262,7 @@ class CommentServiceTest {
         CreateOrUpdateComment updateDto = new CreateOrUpdateComment();
         updateDto.setText("текст");
 
-        Exception exception = assertThrows(NoSuchElementException.class, () -> {
-            commentService.updateComment(adId, commentId, updateDto);
-        });
+        Exception exception = assertThrows(NoSuchElementException.class, () -> commentService.updateComment(adId, commentId, updateDto));
 
         assertEquals("объявление не найдено", exception.getMessage());
     }
@@ -247,14 +277,12 @@ class CommentServiceTest {
 
         when(adRepository.findById(adId)).thenReturn(Optional.of(adEntity));
 
-        adEntity.setComments(Arrays.asList());
+        adEntity.setComments(List.of());
 
         CreateOrUpdateComment updateDto = new CreateOrUpdateComment();
         updateDto.setText("текст");
 
-        Exception exception = assertThrows(NoSuchElementException.class, () -> {
-            commentService.updateComment(adId, commentId, updateDto);
-        });
+        Exception exception = assertThrows(NoSuchElementException.class, () -> commentService.updateComment(adId, commentId, updateDto));
 
         assertEquals("комментарий не найден", exception.getMessage());
     }

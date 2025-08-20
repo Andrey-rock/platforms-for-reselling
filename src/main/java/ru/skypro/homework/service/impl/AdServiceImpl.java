@@ -21,6 +21,7 @@ import ru.skypro.homework.service.SecurityUtils;
 
 import java.io.*;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,7 +101,7 @@ public class AdServiceImpl implements AdService {
             }
         }
         logger.info("Method for Edite Info about Ad");
-        AdEntity adEntity = adRepository.findById(id).get();
+        AdEntity adEntity = adRepository.findById(id).orElseThrow(()-> new NoSuchElementException("объявление не найдено"));
         adEntity.setTitle(ad.getTitle());
         adEntity.setPrice(ad.getPrice());
         adEntity.setDescription(ad.getDescription());
