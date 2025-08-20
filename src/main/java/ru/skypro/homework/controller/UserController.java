@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,8 @@ import ru.skypro.homework.service.UserService;
 @CrossOrigin(value = "http://localhost:3000")
 public class UserController {
 
+    Logger logger = LoggerFactory.getLogger(UserController.class);
+
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -46,6 +50,9 @@ public class UserController {
     })
     @PostMapping("/set_password")
     public ResponseEntity<?> setPassword(@RequestBody NewPassword newPasswordPayload, Authentication authentication) {
+
+        logger.info("Controller method's for setting a new password");
+
         String username = authentication.getName();
         if (username == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
@@ -68,6 +75,9 @@ public class UserController {
     })
     @GetMapping("/me")
     public ResponseEntity<?> getUser(Authentication authentication) {
+
+        logger.info("Controller method's for getting information about authorising user");
+
         String username = authentication.getName();
         if (username == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
@@ -86,6 +96,9 @@ public class UserController {
     })
     @PatchMapping("/me")
     public ResponseEntity<?> updateUser(@RequestBody UpdateUser updateUser, Authentication authentication) {
+
+        logger.info("Controller method's for updating information about authorising user");
+
         String username = authentication.getName();
         if (username == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Вы не авторизованы");
@@ -104,6 +117,9 @@ public class UserController {
     })
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateUserImage(@RequestParam("image") MultipartFile imageFile, Authentication authentication) {
+
+        logger.info("Controller method's for updating an authorising user's photo");
+
         try {
             if (userService.updateUserImage(authentication.getName(), imageFile)) {
                 return ResponseEntity.ok("Аватар успешно обновлён");

@@ -5,7 +5,6 @@ import lombok.*;
 import ru.skypro.homework.dto.Role;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Entity для пользователей.

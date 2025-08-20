@@ -3,6 +3,13 @@ package ru.skypro.homework.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+/**
+ * Entity для изображений.
+ *
+ * @author Andrei Bronskii, 2025
+ * @version 0.0.1
+ */
+
 @Data
 @Entity
 @Table(name = "изображения")

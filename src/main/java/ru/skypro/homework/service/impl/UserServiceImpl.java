@@ -3,6 +3,8 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
@@ -26,6 +28,8 @@ import java.io.*;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final MyUserDetailsServiceImpl manager;
 
@@ -51,9 +55,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean setPassword(String username, @NotNull NewPassword newPassword) {
 
+        logger.info("Method for setting a new password");
+
         return manager.changePassword(username, newPassword);
     }
-
 
     /**
      * Метод получения информации об авторизованном пользователе
@@ -62,6 +67,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUser(String username) {
+
+        logger.info("Method for get information about authorised user's");
+
         return userMapper.toDto(userRepository.findByUsername(username));
     }
 
@@ -74,6 +82,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UpdateUser updateUser(String username, UpdateUser updateUser) {
+
+        logger.info("Method for update information about authorised user's");
+
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
             userEntity.setFirstName(updateUser.getFirstName());
@@ -97,6 +108,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public boolean updateUserImage(String username, MultipartFile file) throws IOException {
+
+        logger.info("Method for update photo authorised user's");
+
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
 

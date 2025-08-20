@@ -1,9 +1,9 @@
 package ru.skypro.homework.service.impl;
 
 import jakarta.transaction.Transactional;
-import liquibase.exception.ChangeNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.entity.ImageEntity;
@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
 @Service
 public class ImageServiceImpl implements ImageService {
 
+    Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
+
     @Value("${path.to.images.folder}")
     private String imagesDir;
 
@@ -26,13 +28,16 @@ public class ImageServiceImpl implements ImageService {
     }
 
     /**
-     * @param image
-     * @return
-     * @throws IOException
+     * Метод для загрузки изображения
+     *
+     * @param image - изображение в формате PNG, JPEG, GIF или TIFF.
+     * @return  Id изображения
      */
     @Override
     @Transactional
     public Integer uploadImage(MultipartFile image) throws IOException {
+
+        logger.info("Method for upload image");
 
         ImageEntity imageEntity = new ImageEntity();
         imageEntity.setData(image.getBytes());
@@ -43,8 +48,10 @@ public class ImageServiceImpl implements ImageService {
     }
 
     /**
-     * @param id
-     * @return
+     * Метод для получения изображения по его Id
+     *
+     * @param id - Id изображения
+     * @return возвращает модель класса ImageEntity
      */
     @Override
     public ImageEntity getImage(Integer id) {

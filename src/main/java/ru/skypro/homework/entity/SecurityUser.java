@@ -7,6 +7,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Проверка пользователя
+ *
+ * @author Andrei Bronskii, 2025
+ * @version 0.0.1
+ */
+
+
 public class SecurityUser implements UserDetails {
 
     private final UserEntity user;

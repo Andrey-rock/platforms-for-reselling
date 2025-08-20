@@ -4,6 +4,8 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 @Service
 public class CommentServiceImpl implements CommentService {
 
+    Logger logger = LoggerFactory.getLogger(CommentServiceImpl.class);
+
     private final CommentRepository commentRepository;
     private final AdRepository adRepository;
     private final CommentMapper commentMapper;
@@ -44,11 +48,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * @param id
-     * @return
+     * Метод для получения комментарев по объявлению
+     *
+     * @param id - Id объявления
+     * @return возвращает список комментариев объявления
      */
     @Override
     public Comments getComments(Integer id) {
+
+        logger.info("Method for get Comments");
 
         List<Comment> comments = adRepository.findById(id).orElseThrow(() -> new NoSuchElementException("объявление не найдено"))
                 .getComments()
@@ -59,13 +67,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * @param id
-     * @param comment
-     * @return
+     * Метод для добавления нового комментария
+     *
+     * @param id - Id объявления
+     * @param comment - DTO для добавления или обновления комментария.
+     * @return возвращает добавленный комментарий
      */
 
     @Override
     public Comment addComment(Integer id, @NotNull CreateOrUpdateComment comment, @NotNull Authentication auth) {
+
+        logger.info("Method for add new Comment");
 
         UserEntity user = userRepository.findByUsername(auth.getName());
         Comment comment1 = new Comment();
@@ -85,13 +97,18 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * @param adId
-     * @param commentId
-     * @return
+     * Метод для удаления комментария
+     *
+     * @param adId - Id объявления
+     * @param commentId -Id комментария
+     * @return boolean
      */
     @Override
     @Transactional
     public boolean deleteComment(Integer adId, Integer commentId) {
+
+        logger.info("Method for delete Comment");
+
         AdEntity ad = adRepository.findById(adId).orElseThrow(() -> new NoSuchElementException("объявление не найдено"));
         CommentEntity comment = ad.getComments().stream()
                 .filter(c -> c.getPk().equals(commentId))
@@ -109,14 +126,19 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * @param adId
-     * @param commentId
-     * @param comment
-     * @return
+     * Метод для обновления комментария
+     *
+     * @param adId - Id объявления
+     * @param commentId - Id комментария
+     * @param comment - DTO для добавления или обновления комментария.
+     * @return возвращает сохраненный комментарий
      */
 
     @Override
     public Comment updateComment(Integer adId, Integer commentId, @NotNull CreateOrUpdateComment comment) {
+
+        logger.info("Method for update Comment");
+
         AdEntity ad = adRepository.findById(adId)
                 .orElseThrow(() -> new NoSuchElementException("объявление не найдено"));
 
