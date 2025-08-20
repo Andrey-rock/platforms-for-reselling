@@ -6,7 +6,7 @@
 
 ## Применяемые технологии
 
-Java 11, Spring Boot, Lombok, Spring Security,  
+Java 17, Spring Boot, Lombok, Spring Security,  
 Liquibase, PostgreSQL, JavaDoc, Swagger, IntelliJ IDEA
 
 На данный момент в разработке.
