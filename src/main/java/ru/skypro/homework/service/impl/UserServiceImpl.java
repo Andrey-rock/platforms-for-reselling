@@ -115,6 +115,7 @@ public class UserServiceImpl implements UserService {
         if (userEntity != null) {
 
             userEntity.setImage("/images/" + imageService.uploadImage(file));
+            userRepository.save(userEntity);
 
             return true;
         }

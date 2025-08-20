@@ -35,7 +35,7 @@ public class AuthController {
     @Tag(name = "Авторизация")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "401", description = "Bad Request", content = @Content()),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content()),
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Login login) {

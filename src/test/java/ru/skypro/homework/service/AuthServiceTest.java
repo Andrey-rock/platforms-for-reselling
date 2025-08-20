@@ -3,12 +3,14 @@ package ru.skypro.homework.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.entity.UserEntity;
@@ -103,7 +105,7 @@ public class AuthServiceTest {
 
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername("newUser");
-        userEntity.setPassword("somePassword");
+        userEntity.setPassword("newPassword");
 
         when(manager.userExists(register.getUsername())).thenReturn(false);
         when(userMapper.entityFromRegister(register)).thenReturn(userEntity);
@@ -122,10 +124,7 @@ public class AuthServiceTest {
         UserEntity createdUser = userCaptor.getValue();
 
         assertEquals("newUser", createdUser.getUsername());
-
-        verify(userRepository).save(userEntity);
-
-        assertEquals("encodedPass", userEntity.getPassword());
+        assertEquals("encodedPass", createdUser.getPassword());
     }
 
     // Тестирование метода register. Попытка зарегистрировать уже существующего пользователя
