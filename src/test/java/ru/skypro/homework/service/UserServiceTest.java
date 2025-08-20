@@ -200,9 +200,9 @@ public class UserServiceTest {
         Path tempDir = Files.createTempDirectory("avatars");
         String avatarsDirPath = tempDir.toString();
 
-        Field field = UserServiceImpl.class.getDeclaredField("avatarsDir");
-        field.setAccessible(true);
-        field.set(userService, avatarsDirPath);
+//        Field field = UserServiceImpl.class.getDeclaredField("avatarsDir");
+//        field.setAccessible(true);
+//        field.set(userService, avatarsDirPath);
 
         boolean result = userService.updateUserImage(testUsername, file);
 
