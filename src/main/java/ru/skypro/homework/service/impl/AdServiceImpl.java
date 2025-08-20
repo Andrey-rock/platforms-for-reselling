@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -46,7 +47,7 @@ public class AdServiceImpl implements AdService {
     }
 
     /**
-     * Метод  получения всех объявлений
+     * Метод получения всех объявлений
      *
      * @return список объявлений
      */
@@ -64,11 +65,11 @@ public class AdServiceImpl implements AdService {
      *
      * @param properties - DTO модель класса CreateOrUpdate.
      * @param image - изображение в формате PNG, JPEG, GIF или TIFF.
-     * @return возвращает объявлеие в качестве DTO модели
+     * @return возвращает объявление в качестве DTO модели
      */
     @Override
-    public Ad addNewAds(CreateOrUpdateAd properties, MultipartFile image,
-                        Authentication authentication) throws IOException {
+    public Ad addNewAds(@NotNull CreateOrUpdateAd properties, MultipartFile image,
+                        @NotNull Authentication authentication) throws IOException {
         logger.info("Method for Create new Ad");
 
         UserEntity user = userRepository.findByUsername(authentication.getName().describeConstable().orElseThrow(()->new UsernameNotFoundException(authentication.getName())));
@@ -145,7 +146,7 @@ public class AdServiceImpl implements AdService {
      *Метод для получения объявлений авторизованного пользователя
      *
      * @param userName - логин пользователя
-     * @return возвращет список объявлений пользователя
+     * @return возвращать список объявлений пользователя
      */
     @Override
     public Ads receiveAdsAuthorizeUser(String userName) {

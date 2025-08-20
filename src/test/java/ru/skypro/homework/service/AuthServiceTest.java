@@ -3,17 +3,17 @@ package ru.skypro.homework.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.UserAlreadyExistException;
+import ru.skypro.homework.exceptions.WrongPasswordException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.impl.AuthServiceImpl;
@@ -91,9 +91,7 @@ public class AuthServiceTest {
         when(userDetails.getPassword()).thenReturn("hashedPassword");
         when(encoder.matches(password, "hashedPassword")).thenReturn(false);
 
-        boolean result = authService.login(username, password);
-
-        assertFalse(result);
+        assertThrows(WrongPasswordException.class, ()-> authService.login(username, password));
     }
 
     // Тестирование метода register. Успешная регистрация
@@ -135,9 +133,7 @@ public class AuthServiceTest {
 
         when(manager.userExists(register.getUsername())).thenReturn(true);
 
-        boolean result = authService.register(register);
-
-        assertFalse(result);
+        assertThrows(UserAlreadyExistException.class, ()-> authService.register(register));
 
         verify(manager).userExists(register.getUsername());
         verifyNoMoreInteractions(userMapper, encoder, manager, userRepository);

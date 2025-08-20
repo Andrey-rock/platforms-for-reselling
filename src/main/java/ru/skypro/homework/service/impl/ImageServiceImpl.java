@@ -3,7 +3,6 @@ package ru.skypro.homework.service.impl;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.entity.ImageEntity;
@@ -17,9 +16,6 @@ import java.util.NoSuchElementException;
 public class ImageServiceImpl implements ImageService {
 
     Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
-
-    @Value("${path.to.images.folder}")
-    private String imagesDir;
 
     private final ImageRepository imageRepository;
 
