@@ -1,9 +1,8 @@
 package ru.skypro.homework.service.impl;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -26,10 +25,16 @@ import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для работы с объявлениями.
+ *
+ * @author AlanaSR, 2025
+ * @version 0.0.1
+ */
+
+@Slf4j
 @Service
 public class AdServiceImpl implements AdService {
-
-    Logger logger = LoggerFactory.getLogger(AdServiceImpl.class);
 
     private final AdRepository adRepository;
     private final AdMapper adMapper;
@@ -53,7 +58,7 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public Ads getAllAds() {
-        logger.info("Method for find All ads");
+        log.info("Method for find All ads start");
         List<Ad> ads = adRepository.findAll().stream().
                 map(adMapper::toDto).
                 collect(Collectors.toList());
@@ -70,7 +75,7 @@ public class AdServiceImpl implements AdService {
     @Override
     public Ad addNewAds(@NotNull CreateOrUpdateAd properties, MultipartFile image,
                         @NotNull Authentication authentication) throws IOException {
-        logger.info("Method for Create new Ad");
+        log.info("Method for Create new Ad start");
 
         UserEntity user = userRepository.findByUsername(authentication.getName().describeConstable()
                 .orElseThrow(() -> new UsernameNotFoundException(authentication.getName())));
@@ -83,7 +88,7 @@ public class AdServiceImpl implements AdService {
         adEntity.setImage("/images/" + imageService.uploadImage(image));
         adRepository.save(adEntity);
 
-        logger.info("Ad created");
+        log.info("Ad created");
 
         return adMapper.toDto(adEntity);
     }
@@ -96,7 +101,7 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public ExtendedAd getInfoAboutAd(Integer id) {
-        logger.info("Method for get Information about Ad");
+        log.info("Method for get Information about Ad: {}", id);
         AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         return adMapper.toExtendedDto(adEntity);
     }
@@ -109,17 +114,13 @@ public class AdServiceImpl implements AdService {
     @Override
     public void deleteAd(Integer id) {
 
-        logger.info("Method for Delete Ad with id: {}", id);
+        log.info("Method for Delete Ad with id: {}", id);
 
-        User currentUser = securityUtils.getCurrentUser();
+//Проверка прав на редактирование
+        rightsVerification(id);
 
-        if (!currentUser.getRole().name().equals("ADMIN")) {
-            if (!(adRepository.getReferenceById(id).getAuthor().getId()).equals(currentUser.getId())) {
-                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
-            }
-        }
         adRepository.deleteById(id);
-        logger.info("Ad delete");
+        log.info("Ad delete");
     }
 
     /**
@@ -130,17 +131,12 @@ public class AdServiceImpl implements AdService {
      * @return возвращает обновленное DTO объявления
      */
     @Override
-    public CreateOrUpdateAd editInfoAboutAd(Integer id, CreateOrUpdateAd ad) {
+    public CreateOrUpdateAd editInfoAboutAd(Integer id, @NotNull CreateOrUpdateAd ad) {
 
-        logger.info("Method for Edite Info about Ad with id: {}", id);
+        log.info("Method for Edite Info about Ad with id: {}", id);
 
-        User currentUser = securityUtils.getCurrentUser();
-
-        if (!currentUser.getRole().name().equals("ADMIN")) {
-            if (!(adRepository.getReferenceById(id).getAuthor().getId()).equals(currentUser.getId())) {
-                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
-            }
-        }
+//Проверка прав на редактирование
+        rightsVerification(id);
 
         AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         adEntity.setTitle(ad.getTitle());
@@ -148,7 +144,7 @@ public class AdServiceImpl implements AdService {
         adEntity.setDescription(ad.getDescription());
 
         adRepository.save(adEntity);
-        logger.info("Ad edit");
+        log.info("Ad edit");
         return adMapper.toDtoAd(adEntity);
     }
 
@@ -160,7 +156,7 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public Ads receiveAdsAuthorizeUser(String userName) {
-        logger.info("Method for Receive ads authorize User");
+        log.info("Method for Receive ads authorize User: {}", userName);
         UserEntity user = userRepository.findByUsername(userName);
         List<Ad> ads = adRepository.findAllAdsByAuthor(user)
                 .stream().map(adMapper::toDto)
@@ -177,14 +173,25 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public boolean renewImageAd(Integer id, MultipartFile imageFile) throws IOException {
-        logger.info("Method for Renew image of Ad's");
+        log.info("Method for Renew image of Ad's: {}", id);
 
         AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-
         adEntity.setImage("/images/" + imageService.uploadImage(imageFile));
-
         adRepository.save(adEntity);
 
+        log.info("Ad renew");
         return true;
+    }
+
+    private void rightsVerification(int adId) {
+
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (!currentUser.getRole().name().equals("ADMIN")) {
+
+            if (!(adRepository.getReferenceById(adId).getAuthor().getId()).equals(currentUser.getId())) {
+                throw new AccessDeniedException("У вас нет прав на редактирование этого объявления");
+            }
+        }
     }
 }

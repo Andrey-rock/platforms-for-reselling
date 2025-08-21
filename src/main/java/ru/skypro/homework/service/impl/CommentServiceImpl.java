@@ -27,6 +27,12 @@ import ru.skypro.homework.service.SecurityUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для работы с объявлениями.
+ *
+ * @author Andrei Bronskii, 2025
+ * @version 0.0.1
+ */
 @Slf4j
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -107,9 +113,9 @@ public class CommentServiceImpl implements CommentService {
     public boolean deleteComment(Integer adId, Integer commentId) {
 
         log.info("Method for delete Comment started with adId {} end commentId {}", adId, commentId);
-
+//Поиск комментария
         CommentEntity comment = commentSearch(adId, commentId);
-
+//Проверка прав на редактирование
         rightsVerification(commentId);
 
         commentRepository.deleteByCommId(comment.getPk());
@@ -130,8 +136,9 @@ public class CommentServiceImpl implements CommentService {
 
         log.info("Method for update Comment started with adId {} end commentId {}", adId, commentId);
 
+//Поиск комментария
         CommentEntity comment1 = commentSearch(adId, commentId);
-
+//Проверка прав на редактирование
         rightsVerification(commentId);
 
         comment1.setText(comment.getText());

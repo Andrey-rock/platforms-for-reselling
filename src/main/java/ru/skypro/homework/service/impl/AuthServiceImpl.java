@@ -20,8 +20,8 @@ import ru.skypro.homework.service.AuthService;
 /**
  * Сервис аутентификации и регистрации.
  *
- * @author Andrei Bronskii, 2025
- * @author Lada Kozlova, 2025
+ * @author Andrei Bronskii
+ * @author Lada Kozlova
  * @author AlanaSR, 2025
  * @version 0.0.1
  */

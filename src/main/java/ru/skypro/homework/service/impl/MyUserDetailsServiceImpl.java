@@ -1,8 +1,7 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,10 +13,16 @@ import ru.skypro.homework.entity.SecurityUser;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.repository.UserRepository;
 
+/**
+ * Реализация интерфейса UserDetailsService.
+ *
+ * @author Andrei Bronskii, 2025
+ * @version 0.0.1
+ */
+
+@Slf4j
 @Service
 public class MyUserDetailsServiceImpl implements UserDetailsService {
-
-    Logger logger = LoggerFactory.getLogger(MyUserDetailsServiceImpl.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
@@ -36,7 +41,7 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        logger.info("Method for loading user's by username");
+        log.debug("Method for loading user's by username start");
 
         SecurityUser securityUser = new SecurityUser(userRepository.findByUsername(username));
         return new User(securityUser.getUsername(), securityUser.getPassword(),
@@ -44,14 +49,14 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     }
 
     /**
-     *Метод для проверки существования пользователя
+     * Метод для проверки существования пользователя
      *
      * @param userName - логин пользователя
      * @return boolean
      */
     public boolean userExists(String userName) {
 
-        logger.info("Method for checking existing user");
+        log.debug("Method for checking existing user start");
 
         return userRepository.findByUsername(userName) != null;
     }
@@ -63,7 +68,7 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
      */
     public void createUser(UserEntity userEntity) {
 
-        logger.info("Method for create new user");
+        log.info("Method for create new user start");
 
         userRepository.save(userEntity);
     }
@@ -71,19 +76,23 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     /**
      * Метод для обновления пароля пользователя
      *
-     * @param username - логин пользователя
+     * @param username    - логин пользователя
      * @param newPassword - новый пароль
      * @return boolean
      */
     public boolean changePassword(String username, @NotNull NewPassword newPassword) {
+
+        log.debug("Method for change password start");
         UserEntity userEntity = userRepository.findByUsername(username);
         String currentPass = newPassword.getCurrentPassword();
         String newPass = newPassword.getNewPassword();
         if (encoder.matches(currentPass, userEntity.getPassword())) {
             userEntity.setPassword(encoder.encode(newPass));
             userRepository.save(userEntity);
+            log.debug("Method for change password successfully completed");
             return true;
         }
+        log.debug("Method for change password fail");
         return false;
     }
 }

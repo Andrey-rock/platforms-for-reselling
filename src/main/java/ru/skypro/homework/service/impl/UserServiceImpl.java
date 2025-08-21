@@ -1,16 +1,16 @@
 package ru.skypro.homework.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.UserAlreadyExistException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
@@ -26,13 +26,11 @@ import java.io.*;
  * @version 0.0.1
  */
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
-    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
     private final MyUserDetailsServiceImpl manager;
-
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final ImageService imageService;
@@ -55,7 +53,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean setPassword(String username, @NotNull NewPassword newPassword) {
 
-        logger.info("Method for setting a new password");
+        log.info("Method for setting a new password set by user: {}", username);
 
         return manager.changePassword(username, newPassword);
     }
@@ -68,7 +66,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String username) {
 
-        logger.info("Method for get information about authorised user's");
+        log.info("Method for get information about authorised user: {}", username);
 
         return userMapper.toDto(userRepository.findByUsername(username));
     }
@@ -83,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UpdateUser updateUser(String username, UpdateUser updateUser) {
 
-        logger.info("Method for update information about authorised user's");
+        log.info("Method for update information about authorised user update: {}", username);
 
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
@@ -91,10 +89,11 @@ public class UserServiceImpl implements UserService {
             userEntity.setLastName(updateUser.getLastName());
             userEntity.setPhone(updateUser.getPhone());
             userRepository.save(userEntity);
+            log.info("User {} updated", username);
             return userMapper.updateUserFromEntity(userEntity);
         } else {
-            // TODO: позже заменить на собственное исключение
-            throw new RuntimeException("User not found");
+            log.info("User {} not found", username);
+            throw new UserAlreadyExistException("пользователь не найден");
         }
     }
 
@@ -109,16 +108,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean updateUserImage(String username, MultipartFile file) throws IOException {
 
-        logger.info("Method for update photo authorised user's");
+        log.info("Method for update photo authorised user's: {}", username);
 
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
 
             userEntity.setImage("/images/" + imageService.uploadImage(file));
             userRepository.save(userEntity);
-
+            log.info("User {} updated image success", username);
             return true;
         }
+        log.info("User {} not found", username);
         return false;
     }
 }
