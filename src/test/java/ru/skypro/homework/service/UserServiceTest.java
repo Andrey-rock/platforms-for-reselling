@@ -94,7 +94,7 @@ public class UserServiceTest {
 
         RuntimeException thrown = assertThrows(RuntimeException.class,
                 () -> userService.updateUser(testUsername, new UpdateUser()));
-        assertEquals("User not found", thrown.getMessage());
+        assertEquals("пользователь не найден", thrown.getMessage());
     }
 
     // Тестирование updateUserImage. Успешное обновление аватара

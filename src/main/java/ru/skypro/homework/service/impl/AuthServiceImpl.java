@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("Method of the login user's start");
         if (!manager.userExists(userName)) {
             log.info("User {} does not exist", userName);
-            throw new UserDoesNotExistException("Пользователь " + userName + "не зарегистрирован");
+            throw new UserDoesNotExistException("Пользователь " + userName + " не зарегистрирован");
         }
         UserDetails userDetails = manager.loadUserByUsername(userName);
         if (!encoder.matches(password, userDetails.getPassword())) {
