@@ -85,7 +85,7 @@ public class AdServiceImpl implements AdService {
         adEntity.setPrice(properties.getPrice());
         adEntity.setDescription(properties.getDescription());
         adEntity.setAuthor(user);
-        adEntity.setImage("/images/" + imageService.uploadImage(image));
+        adEntity.setImage("/images/" + imageService.uploadImage(user.getUsername(), image));
         adRepository.save(adEntity);
 
         log.info("Ad created");
@@ -176,7 +176,7 @@ public class AdServiceImpl implements AdService {
         log.info("Method for Renew image of Ad's: {}", id);
 
         AdEntity adEntity = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-        adEntity.setImage("/images/" + imageService.uploadImage(imageFile));
+        adEntity.setImage("/images/" + imageService.uploadImage(adEntity.getTitle() + adEntity.getPk(), imageFile));
         adRepository.save(adEntity);
 
         log.info("Ad renew");

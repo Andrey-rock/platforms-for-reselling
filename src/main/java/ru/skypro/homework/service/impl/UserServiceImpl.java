@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByUsername(username);
         if (userEntity != null) {
 
-            userEntity.setImage("/images/" + imageService.uploadImage(file));
+            userEntity.setImage("/images/" + imageService.uploadImage(userEntity.getUsername(), file));
             userRepository.save(userEntity);
             log.info("User {} updated image success", username);
             return true;

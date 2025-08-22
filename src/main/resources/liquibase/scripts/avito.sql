@@ -39,8 +39,8 @@ CREATE TABLE комментарии
 
 CREATE TABLE изображения
 (
-    id               SERIAL primary key,
-    размер_файла     BIGINT      not null,
-    тип_файла        varchar(16) not null,
-    содержимое_файла bytea
+    id           SERIAL primary key,
+    адрес_файла  varchar(64) not null,
+    размер_файла BIGINT      not null,
+    тип_файла    varchar(16) not null
 );
