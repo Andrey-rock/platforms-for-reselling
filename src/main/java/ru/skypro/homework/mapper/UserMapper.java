@@ -1,8 +1,8 @@
 package ru.skypro.homework.mapper;
 
+import org.jetbrains.annotations.NotNull;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.UserEntity;
 
@@ -14,7 +14,6 @@ import ru.skypro.homework.entity.UserEntity;
  */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "username", target = "email")
@@ -23,10 +22,16 @@ public interface UserMapper {
     @Mapping(source = "email", target = "username")
     UserEntity toEntity(User dto);
 
-    UserEntity UserEntityFromDto(UpdateUser updateUser);
+    default UserEntity UserEntityFromDto(@NotNull UserEntity entity, @NotNull UpdateUser updateUser){
+        entity.setFirstName(updateUser.getFirstName());
+        entity.setLastName(updateUser.getLastName());
+        entity.setPhone(updateUser.getPhone());
+        return entity;
+    }
 
     UpdateUser updateUserFromEntity(UserEntity userEntity);
 
     UserEntity entityFromRegister(Register register);
+
 }
 

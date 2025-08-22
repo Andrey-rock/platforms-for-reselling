@@ -67,17 +67,24 @@ public class UserMapperTest {
     @Test
     public void convertUpdateUserToUserEntity() {
 
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1);
+        userEntity.setUsername("JonDo");
+        userEntity.setFirstName("JonD");
+        userEntity.setLastName("Do");
+        userEntity.setPhone("89991111111");
+
         UpdateUser user = new UpdateUser();
-        user.setFirstName("JonDo");
-        user.setLastName("Do");
-        user.setPhone("89991111111");
+        user.setFirstName("Test");
+        user.setLastName("Test1");
+        user.setPhone("81119999999");
 
 
-        UserEntity userEntity = userMapper.UserEntityFromDto(user);
+        UserEntity userEntity1 = userMapper.UserEntityFromDto(userEntity, user);
 
         Assertions.assertNotNull(userEntity);
-        Assertions.assertEquals(user.getFirstName(), userEntity.getFirstName());
-        Assertions.assertEquals(user.getLastName(), userEntity.getLastName());
-        Assertions.assertEquals(user.getPhone(), userEntity.getPhone());
+        Assertions.assertEquals(user.getFirstName(), userEntity1.getFirstName());
+        Assertions.assertEquals(user.getLastName(), userEntity1.getLastName());
+        Assertions.assertEquals(user.getPhone(), userEntity1.getPhone());
     }
 }
