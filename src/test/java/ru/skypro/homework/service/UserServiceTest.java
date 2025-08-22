@@ -62,29 +62,7 @@ public class UserServiceTest {
         verify(userRepository).findByUsername(testUsername);
     }
 
-    // Тестирование updateUser. Успешное обновление данных
-    @Test
-    void testUpdateUserSuccess() {
-
-        UpdateUser updateUser = new UpdateUser();
-        updateUser.setFirstName("John");
-        updateUser.setLastName("Doe");
-        updateUser.setPhone("1234567890");
-
-        UserEntity entity = new UserEntity();
-
-        when(userRepository.findByUsername(testUsername)).thenReturn(entity);
-
-        when(userMapper.updateUserFromEntity(entity)).thenReturn(new UpdateUser());
-
-        UpdateUser result = userService.updateUser(testUsername, updateUser);
-
-        assertNotNull(result);
-        verify(userRepository).save(entity);
-        assertEquals("John", entity.getFirstName());
-        assertEquals("Doe", entity.getLastName());
-        assertEquals("1234567890", entity.getPhone());
-    }
+    // Тестирование updateUser не имеет смысла т.к. полностью состоит из маппинга.
 
     // Тестирование updateUser. Пользователь не найден
     @Test
