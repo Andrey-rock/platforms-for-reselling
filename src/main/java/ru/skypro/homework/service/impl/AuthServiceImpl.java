@@ -12,6 +12,7 @@ import ru.skypro.homework.dto.Register;
 
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.exceptions.UserAlreadyExistException;
+import ru.skypro.homework.exceptions.UserDoesNotExistException;
 import ru.skypro.homework.exceptions.WrongPasswordException;
 import ru.skypro.homework.mapper.UserMapper;
 
@@ -55,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("Method of the login user's start");
         if (!manager.userExists(userName)) {
             log.info("User {} does not exist", userName);
-            throw new UserAlreadyExistException(userName);
+            throw new UserDoesNotExistException("Пользователь " + userName + "не зарегистрирован");
         }
         UserDetails userDetails = manager.loadUserByUsername(userName);
         if (!encoder.matches(password, userDetails.getPassword())) {

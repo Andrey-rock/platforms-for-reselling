@@ -4,13 +4,13 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
-import ru.skypro.homework.exceptions.UserAlreadyExistException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
             return userMapper.updateUserFromEntity(userEntity);
         } else {
             log.info("User {} not found", username);
-            throw new UserAlreadyExistException("пользователь не найден");
+            throw new UsernameNotFoundException("пользователь не найден");
         }
     }
 

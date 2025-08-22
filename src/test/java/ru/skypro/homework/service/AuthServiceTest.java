@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.exceptions.UserAlreadyExistException;
+import ru.skypro.homework.exceptions.UserDoesNotExistException;
 import ru.skypro.homework.exceptions.WrongPasswordException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
@@ -72,9 +73,8 @@ public class AuthServiceTest {
 
         when(manager.userExists(username)).thenReturn(false);
 
-        boolean result = authService.login(username, password);
+        assertThrows(UserDoesNotExistException.class, () -> authService.login(username, password));
 
-        assertFalse(result);
         verify(manager).userExists(username);
         verifyNoMoreInteractions(manager);
     }
