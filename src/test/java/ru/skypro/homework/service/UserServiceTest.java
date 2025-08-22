@@ -86,12 +86,12 @@ public class UserServiceTest {
 
         when(userRepository.findByUsername(testUsername)).thenReturn(entity);
 
-        when(imageService.uploadImage(file)).thenReturn(1);
+        when(imageService.uploadImage(testUsername, file)).thenReturn(1);
 
         boolean result = userService.updateUserImage(testUsername, file);
 
         assertTrue(result);
-        verify(imageService).uploadImage(file);
+        verify(imageService).uploadImage(testUsername, file);
         verify(userRepository).save(entity);
 
     }

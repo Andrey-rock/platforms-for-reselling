@@ -63,7 +63,12 @@ public class ImageServiceImpl implements ImageService {
         }
         log.info("Avatar recording was successful");
 
-        ImageEntity imageEntity = new ImageEntity();
+        ImageEntity imageEntity = imageRepository.findByFilePath(filePath.toString());
+
+        if (imageEntity != null) {
+            imageRepository.delete(imageEntity);
+        }
+        imageEntity = new ImageEntity();
         imageEntity.setFileSize(image.getSize());
         imageEntity.setMediaType(image.getContentType());
         imageEntity.setFilePath(filePath.toString());
