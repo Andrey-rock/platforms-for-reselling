@@ -33,7 +33,10 @@ public class WebSecurityConfig implements WebMvcConfigurer {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/register"
+            "/register",
+            "/ads",
+            "/images/**",
+            ""
     };
 
     @Bean
@@ -44,7 +47,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers(AUTH_WHITELIST).permitAll()
                                 .requestMatchers("/ads/**", "/users/**").authenticated()
-                                .anyRequest().permitAll())
+                                .anyRequest().denyAll())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
