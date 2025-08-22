@@ -18,11 +18,10 @@ public class ImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "адрес_файла")
+    String filePath;
     @Column(name = "размер_файла")
     private long fileSize;
     @Column(name = "тип_файла")
     private String mediaType;
-
-    @Column(name = "содержимое_файла")
-    private byte[] data;
 }

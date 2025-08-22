@@ -6,4 +6,5 @@ import ru.skypro.homework.entity.ImageEntity;
 
 @Repository
 public interface ImageRepository extends JpaRepository<ImageEntity,Integer> {
+    ImageEntity findByFilePath(String filePath);
 }

@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.entity.ImageEntity;
 import ru.skypro.homework.service.ImageService;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /**
  * Контроллер для работы с изображениями
  *
@@ -30,7 +34,7 @@ public class ImageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) {
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Integer id) throws IOException {
 
         logger.info("Controller method's for getting image");
 
@@ -38,7 +42,11 @@ public class ImageController {
         if (image == null) {
             return ResponseEntity.notFound().build();
         }
-        byte[] im = image.getData();
+
+        Path path = Path.of(image.getFilePath());
+
+        byte[] im = Files.readAllBytes(path);
+
         return ResponseEntity.ok().body(im);
     }
 }

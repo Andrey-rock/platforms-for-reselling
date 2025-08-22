@@ -11,6 +11,8 @@ import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.AdEntity;
 import ru.skypro.homework.entity.CommentEntity;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.AdNotFoundException;
+import ru.skypro.homework.exceptions.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.CommentRepository;
@@ -94,7 +96,7 @@ class CommentServiceTest {
 
         when(adRepository.findById(adId)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> commentService.getComments(adId));
+        assertThrows(AdNotFoundException.class, () -> commentService.getComments(adId));
 
         verify(adRepository).findById(adId);
     }
@@ -173,13 +175,13 @@ class CommentServiceTest {
 
         when(adRepository.findById(adId)).thenReturn(Optional.empty());
 
-        NoSuchElementException thrown = assertThrows(
-                NoSuchElementException.class,
+        AdNotFoundException thrown = assertThrows(
+                AdNotFoundException.class,
                 () -> commentService.addComment(adId, createComment, auth),
                 "NoSuchElementException"
         );
 
-        assertEquals("объявление не найдено", thrown.getMessage());
+        assertEquals("Объявление не найдено", thrown.getMessage());
     }
 
     // Тест для метода deleteComment(). Для существующего комментария
@@ -242,8 +244,8 @@ class CommentServiceTest {
 
         when(adRepository.findById(adId)).thenReturn(Optional.of(ad));
 
-        NoSuchElementException thrown = assertThrows(
-                NoSuchElementException.class,
+        CommentNotFoundException thrown = assertThrows(
+                CommentNotFoundException.class,
                 () -> commentService.deleteComment(adId, commentId),
                 "NoSuchElementException"
         );
@@ -262,9 +264,9 @@ class CommentServiceTest {
         CreateOrUpdateComment updateDto = new CreateOrUpdateComment();
         updateDto.setText("текст");
 
-        Exception exception = assertThrows(NoSuchElementException.class, () -> commentService.updateComment(adId, commentId, updateDto));
+        Exception exception = assertThrows(AdNotFoundException.class, () -> commentService.updateComment(adId, commentId, updateDto));
 
-        assertEquals("объявление не найдено", exception.getMessage());
+        assertEquals("Объявление не найдено", exception.getMessage());
     }
 
     // Тест для метода updateComment(). Для отсутствующего комментария
@@ -282,7 +284,7 @@ class CommentServiceTest {
         CreateOrUpdateComment updateDto = new CreateOrUpdateComment();
         updateDto.setText("текст");
 
-        Exception exception = assertThrows(NoSuchElementException.class, () -> commentService.updateComment(adId, commentId, updateDto));
+        Exception exception = assertThrows(CommentNotFoundException.class, () -> commentService.updateComment(adId, commentId, updateDto));
 
         assertEquals("комментарий не найден", exception.getMessage());
     }

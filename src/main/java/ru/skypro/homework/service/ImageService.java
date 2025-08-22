@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface ImageService {
 
-    Integer uploadImage(MultipartFile image) throws IOException;
+    Integer uploadImage(String name, MultipartFile image) throws IOException;
 
     ImageEntity getImage(Integer id);
 }
